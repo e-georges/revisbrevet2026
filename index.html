@@ -3,23 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RévisBrevet 2026</title>
+  <title>RévisBrevet 2026 — Édition Pro</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Moteur de reconnaissance de texte OCR 100% local et gratuit -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
 
   <div class="app-container">
     
+    <!-- CONTENU PRINCIPAL -->
     <main class="main-content">
       
+      <!-- 🏠 ÉCRAN D'ACCUEIL -->
       <section id="home-screen" class="view-section">
         <div class="mobile-header">
           <div>
-            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Objectif Diplôme</span>
-            <h1 style="margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;">Brevet des Collèges</h1>
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Objectif Excellence</span>
+            <h1 style="margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;">Mon Programme</h1>
           </div>
           <button id="btn-mode-automatismes" class="badge" style="border: none; cursor: pointer; background: var(--color-primary); color: white; padding: 8px 14px; border-radius: 10px;">
             <svg style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.5;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -31,9 +35,11 @@
           <p id="lacunes-text" style="margin: 0; font-size: 0.85rem; color: #9A3412; line-height: 1.5;"></p>
         </div>
 
+        <!-- Les matières et accordéons se génèrent ici -->
         <div id="matieres-container"></div>
       </section>
 
+      <!-- 📋 ÉCRAN PRÉ-QUIZ (Modifié pour accueillir le mode IA) -->
       <section id="pre-quiz-screen" class="view-section hidden">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
           <button onclick="goHome()" style="background: none; border: none; padding: 4px; cursor: pointer; color: var(--text-secondary);" aria-label="Retour à l'accueil">
@@ -44,30 +50,52 @@
 
         <h2 id="pre-quiz-title" style="margin: 0 0 24px 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em;">Titre du Chapitre</h2>
 
-        <div class="card">
-          <h4 style="margin: 0 0 10px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">L'essentiel du cours</h4>
-          <p id="pre-quiz-cours-text" style="margin: 0; font-size: 0.9rem; color: var(--text-primary); line-height: 1.55; white-space: pre-line;"></p>
+        <!-- BLOC STANDARD : S'affiche si le cours existe -->
+        <div id="wrapper-cours-standard">
+          <div class="card">
+            <h4 style="margin: 0 0 10px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">L'essentiel du cours</h4>
+            <p id="pre-quiz-cours-text" style="margin: 0; font-size: 0.9rem; color: var(--text-primary); line-height: 1.55; white-space: pre-line;"></p>
+          </div>
+
+          <div class="card" style="background: #FFF5F5; border-color: #FED7D7;">
+            <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--color-danger); letter-spacing: 0.05em;">Le piège du Brevet / Lycée</h4>
+            <p id="pre-quiz-piege-text" style="margin: 0; font-size: 0.88rem; color: #9B1C1C; line-height: 1.5;"></p>
+          </div>
+
+          <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.02em; text-align: center; margin: 28px 0 12px 0;">Niveau d'entraînement :</p>
+          
+          <div class="quiz-level-container">
+            <button id="btn-lvl-1" class="btn-lvl-select" style="background-color: var(--color-success);">
+              <span class="lvl-num">Niv 1</span>
+              <span class="lvl-label">Fondations</span>
+            </button>
+            <button id="btn-lvl-2" class="btn-lvl-select" style="background-color: var(--color-warning);">
+              <span class="lvl-num">Niv 2</span>
+              <span class="lvl-label">Application</span>
+            </button>
+            <button id="btn-lvl-3" class="btn-lvl-select" style="background-color: var(--color-danger);">
+              <span class="lvl-num">Niv 3</span>
+              <span class="lvl-label">Brevet/Lycée</span>
+            </button>
+          </div>
         </div>
 
-        <div class="card" style="background: #FFF5F5; border-color: #FED7D7;">
-          <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--color-danger); letter-spacing: 0.05em;">Le piège du Brevet</h4>
-          <p id="pre-quiz-piege-text" style="margin: 0; font-size: 0.88rem; color: #9B1C1C; line-height: 1.5;"></p>
-        </div>
+        <!-- BLOC ENTRAINEMENT IA INFINI (Pour chapitres personnalisés) -->
+        <div id="wrapper-cours-ia" class="hidden">
+          <div class="card" style="background: #F0FDF4; border-color: #BBF7D0; margin-bottom: 24px;">
+            <p style="margin: 0; font-size: 0.88rem; color: #166534; font-weight: 500; line-height: 1.5;">
+              ✨ <b>Générateur Infini Actif :</b> Ce chapitre utilise les données de ton manuel ou de tes notes. L'IA générera des valeurs et des problèmes uniques à chaque essai pour détruire les automatismes de mémorisation passive.
+            </p>
+          </div>
 
-        <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.02em; text-align: center; margin: 28px 0 12px 0;">Niveau d'entraînement :</p>
-        
-        <div class="quiz-level-container">
-          <button id="btn-lvl-1" class="btn-lvl-select" style="background-color: var(--color-success);">
-            <span class="lvl-num">Niv 1</span>
-            <span class="lvl-label">Fondations</span>
+          <button id="btn-ia-cours" class="option-btn" style="border-color: var(--color-primary); font-weight: 600; min-height: 64px; margin-bottom: 14px;">
+            <span style="font-size: 1.2rem; margin-right: 12px;">🤖</span>
+            Voir le Résumé & Fondamentaux
           </button>
-          <button id="btn-lvl-2" class="btn-lvl-select" style="background-color: var(--color-warning);">
-            <span class="lvl-num">Niv 2</span>
-            <span class="lvl-label">Application</span>
-          </button>
-          <button id="btn-lvl-3" class="btn-lvl-select" style="background-color: var(--color-danger);">
-            <span class="lvl-num">Niv 3</span>
-            <span class="lvl-label">Brevet</span>
+
+          <button id="btn-ia-exercices" class="option-btn" style="border-color: var(--color-accent); font-weight: 600; min-height: 64px;">
+            <span style="font-size: 1.2rem; margin-right: 12px;">✍️</span>
+            Lancer un Exercice de Révision Unique
           </button>
         </div>
 
@@ -77,6 +105,7 @@
         </button>
       </section>
 
+      <!-- 🎮 ÉCRAN QUIZ / AUTOMATISMES -->
       <section id="quiz-screen" class="view-section hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <span id="quiz-progress-text" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Question 1 / 3</span>
@@ -102,6 +131,7 @@
         <button id="quiz-next" class="btn-primary" style="margin-top: 28px;" disabled>Question suivante ➡️</button>
       </section>
 
+      <!-- ✍️ ÉCRAN EXERCICE OUVERT -->
       <section id="open-exercise-screen" class="view-section hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <span id="open-ex-title" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Chapitre</span>
@@ -127,6 +157,7 @@
         </div>
       </section>
 
+      <!-- 🎴 ÉCRAN FLASHCARDS -->
       <section id="flashcards-screen" class="view-section hidden">
         <div style="text-align: center; margin-bottom: 24px;">
           <span id="flashcard-meta" class="badge">Matière • Chapitre</span>
@@ -153,6 +184,53 @@
 
     </main>
 
+    <!-- 🧭 MODAL MODAL HUB D'INGESTION MULTIMODAL -->
+    <div id="modal-add-chapter" class="modal-backdrop hidden">
+      <div class="modal-window">
+        <div class="tabs-header">
+          <button class="tab-btn active" onclick="switchIngestTab('tab-text')">✍️ Saisie</button>
+          <button class="tab-btn" onclick="switchIngestTab('tab-photo')">📷 Photo</button>
+          <button class="tab-btn" onclick="switchIngestTab('tab-link')">🔗 Lien Web</button>
+        </div>
+
+        <div style="padding: 20px 20px 0 20px;">
+          <input type="text" id="input-new-chap-title" class="input-field" placeholder="Nom du nouveau chapitre (ex: Vecteurs)">
+        </div>
+
+        <!-- Onglet 1 : Saisie Manuelle -->
+        <div id="tab-text" class="tab-content active">
+          <textarea id="area-ingest-text" class="input-field" style="height: 100px; resize: none;" placeholder="Copie-colle ton cours, formules ou définitions ici..."></textarea>
+        </div>
+
+        <!-- Onglet 2 : Photo / Manuel Scolaire -->
+        <div id="tab-photo" class="tab-content">
+          <div class="file-dropzone" onclick="$('file-camera-input').click()">
+            <span style="font-size: 1.5rem; display: block; margin-bottom: 6px;">📸</span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Prendre ou charger une photo de cours</span>
+            <input type="file" id="file-camera-input" accept="image/*" style="display: none;">
+          </div>
+          <div id="ocr-status-container" class="ocr-loader hidden">
+            <div class="spinner"></div>
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--color-primary);" id="ocr-progress-label">Analyse du document papier...</span>
+          </div>
+        </div>
+
+        <!-- Onglet 3 : Lien HTTP officiel -->
+        <div id="tab-link" class="tab-content">
+          <input type="url" id="input-ingest-url" class="input-field" placeholder="https://programme-officiel.fr/cours">
+          <p style="margin:0 0 10px 0; font-size:0.72rem; color:var(--text-secondary); line-height:1.4;">
+            ⚠️ En raison des protections de sécurité des navigateurs (CORS), si le lien est bloqué, colle directement l'extrait du site dans l'onglet <b>Saisie</b>.
+          </p>
+        </div>
+
+        <div style="padding: 0 20px 20px 20px; display: flex; gap: 10px;">
+          <button class="btn-secondary" style="min-height:44px; font-size:0.85rem;" onclick="closeAddChapterModal()">Annuler</button>
+          <button id="btn-submit-new-chap" class="btn-primary" style="min-height:44px; font-size:0.85rem;">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🧭 BARRE DE NAVIGATION FIXE BASSE -->
     <nav class="bottom-nav">
       <button id="nav-home" class="nav-item active">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z"/></svg>
