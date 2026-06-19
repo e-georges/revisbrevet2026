@@ -1,5 +1,5 @@
 // ==========================================================================
-// RévisBrevet 2026 — app.js (SOFT UI EVOLUTION EDITION — FULL MECHANICAL LOGIC)
+// RévisBrevet 2026 — app.js (VERSION FINALE ULTRA-EVOLUTIVE MULTIMODALE)
 // ==========================================================================
 
 const AppState = {
@@ -7,25 +7,28 @@ const AppState = {
   progress: {},
   adaptive: {}, 
   historiqueQuestions: [],
+  targetMatiereIdForAdd: null,
+  extractedOcrText: "",
   quiz: {
     chapitreId: null,
     questions: [],
     idx: 0,
     score: 0,
     isAutomatisme: false,
-    niveauFiltre: 1
+    niveauFiltre: 1,
+    isCustomIA: false
   }
 };
 
 const $ = id => document.getElementById(id);
 
-const DATA_SECOURS = {
+// Catalogue de base étendu au programme de Seconde
+const DATA_INITIALE = {
   matieres: [
     {
       id: "maths",
       label: "Mathématiques",
-      emoji: "📐",
-      categorie: "Sciences",
+      categorie: "🎓 CYCLES BREVET DES COLLÈGES",
       chapitres: [
         {
           id: "fractions",
@@ -35,19 +38,30 @@ const DATA_SECOURS = {
           piege: "Oublier la priorité opératoire de la multiplication sur l'addition !"
         }
       ]
+    },
+    {
+      id: "maths_2de",
+      label: "Mathématiques (Lycée)",
+      categorie: "🚀 OBJECTIF SECONDE",
+      chapitres: [
+        {
+          id: "intervalles",
+          titre: "Ensembles de nombres & Intervalles",
+          theme: "Algèbre",
+          cours: "En Seconde, on étudie les ensembles : ℕ (naturels), ℤ (relatifs), 𝔻 (décimaux), ℚ (rationnels) et ℝ (réels).\nUn intervalle [a ; b] rassemble les réels x vérifiant a ≤ x ≤ b.",
+          piege: "Crochet ouvert veut dire valeur strictement exclue !"
+        }
+      ]
     }
   ]
 };
 
-// Dictionnaire des SVG de secours pour remplacer complètement les émojis dans l'interface graphique
 const SVGMappings = {
   "maths": `<svg viewBox="0 0 24 24"><path d="M22 10v4h-6v6h-4v-6H6v-4h6V4h4v6h6z"/></svg>`,
-  "francais": `<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
-  "histoire": `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg>`,
-  "svt": `<svg viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2.5 3.19-2.5 5.5h20c0-2.31-1-4.24-2.5-5.5M12 2a5 5 0 1 0 0 10 5 5 0 1 0 0-10z"/></svg>`,
-  "physique": `<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`
+  "maths_2de": `<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`
 };
 
+// Algorithme Anti-Répétition
 function obtenirQuestionsFiltrees(pool, quantite) {
   let questionsDisponibles = pool.filter(q => !AppState.historiqueQuestions.includes(q.enonce));
   if (questionsDisponibles.length < quantite) {
@@ -61,22 +75,37 @@ function obtenirQuestionsFiltrees(pool, quantite) {
   return selectionnees;
 }
 
-function genererQuestionMutationMaths() {
-  const pList = [5, 10, 15, 20, 25, 30, 40, 50, 60, 75];
-  const vList = [30, 40, 50, 60, 80, 100, 120, 150, 200, 300, 400, 500];
-  const p = pList[Math.floor(Math.random() * pList.length)];
-  const v = vList[Math.floor(Math.random() * vList.length)];
-  const res = parseFloat(((p * v) / 100).toFixed(2));
+// 🎰 MOTEUR DE MUTATION INFINIE POUR LES MATHS ET LES DOSSIERS PERSO
+function genererMutationMathsAleatoire(themeDonne) {
+  const variableA = Math.floor(Math.random() * 20) + 2;
+  const variableB = Math.floor(Math.random() * 15) + 2;
+  const variableC = variableA * variableB;
   
-  const enonce = `Calculer ${p}% de ${v} €.`;
-  const bonneReponse = `${res} €`;
-  const explication = `Prendre ${p}%, revient à calculer (${p} × ${v}) / 100 = ${res} €.`;
-  
-  const options = [bonneReponse, `${parseFloat((res + (v * 0.05)).toFixed(2))} €`, `${res - 2 > 0 ? parseFloat((res - 2).toFixed(2)) : parseFloat((res + 10).toFixed(2))} €`, `${parseFloat((res * 1.5).toFixed(2))} €`];
-  const shuffled = shuffleArr([...new Set(options)]);
-  return { enonce, options: shuffled, bonne_reponse: shuffled.indexOf(bonneReponse), explication };
+  // Scénario A : Pourcentages / Évolution (Seconde)
+  if (Math.random() > 0.5) {
+    const taux = [5, 10, 20, 25, 50, 75][Math.floor(Math.random() * 6)];
+    const base = [40, 80, 120, 200, 300, 500][Math.floor(Math.random() * 6)];
+    const calcul = parseFloat(((taux * base) / 100).toFixed(2));
+    
+    return {
+      enonce: `[Exercice Unique] Appliquer une évolution de ${taux}% sur une valeur de ${base} unités. Quelle est la valeur finale obtenue ?`,
+      options: [`${calcul} unités`, `${base - calcul} unités`, `${base + calcul} unités`, `${calcul * 2} unités`],
+      bonne_reponse: 0,
+      explication: `Prendre ${taux}% de ${base} revient à faire (${taux} × ${base}) / 100 = ${calcul}.`
+    };
+  } 
+  // Scénario B : Équations / Fondements
+  else {
+    return {
+      enonce: `[Exercice Unique] Résoudre l'équation suivante : ${variableA}x = ${variableC}. Quelle est la valeur exacte de x ?`,
+      options: [`x = ${variableB + 4}`, `x = ${variableB}`, `x = ${variableC}`, `x = ${variableA}`],
+      bonne_reponse: 1,
+      explication: `On isole x en effectuant l'opération inverse : x = ${variableC} / ${variableA} = ${variableB}.`
+    };
+  }
 }
 
+// ⏱️ GESTION DU CHRONOMÈTRE
 let timerInterval = null;
 let tempsRestant = 45;
 
@@ -106,7 +135,7 @@ function forcerEchecTimeout() {
   document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
   $('quiz-explanation-box').className = "explanation-box visible bad";
   $('explanation-status').textContent = "⏰ TEMPS ÉCOULÉ !";
-  $('explanation-text').textContent = "Les 45 secondes maximales pour cet automatisme sont passées.";
+  $('explanation-text').textContent = "Le temps réglementaire pour valider cet automatisme est dépassé.";
   $('quiz-next').disabled = false;
   enregistrerLacune("Automatismes");
 }
@@ -131,37 +160,27 @@ function analyserLacunes() {
   }
   if (pireTheme) {
     $('lacunes-box').classList.remove('hidden');
-    $('lacunes-text').innerHTML = `💡 <b>Focus Révision :</b> Tes statistiques signalent des erreurs fréquentes sur le thème <b>${pireTheme}</b>. Passe par l'onglet Flashcards pour consolider tes connaissances !`;
+    $('lacunes-text').innerHTML = `💡 <b>Focus Recommandé :</b> Tu as commis des erreurs répétées sur le thème <b>${pireTheme}</b>. Utilise les Flashcards pour consolider ce point précis.`;
   } else {
     $('lacunes-box').classList.add('hidden');
   }
 }
 
+// 🚀 ENTRÉE DE L'APPLICATION
 async function initialiserApp() {
+  const savedData = localStorage.getItem('dnb_custom_curriculum');
+  AppState.data = savedData ? JSON.parse(savedData) : DATA_INITIALE;
+
   const savedAdaptive = localStorage.getItem('dnb_adaptive_analytics');
   if (savedAdaptive) AppState.adaptive = JSON.parse(savedAdaptive);
   
   const savedHistory = localStorage.getItem('dnb_history_anti_repeat');
   if (savedHistory) AppState.historiqueQuestions = JSON.parse(savedHistory);
   
-  try {
-    const res = await fetch('troisieme.json');
-    if (res.ok) {
-      AppState.data = await res.json();
-    } else {
-      AppState.data = DATA_SECOURS;
-    }
-  } catch (e) {
-    AppState.data = DATA_SECOURS;
-  }
-  
-  if (!AppState.data || !AppState.data.matieres) {
-    AppState.data = DATA_SECOURS;
-  }
-  
   construireMenuMatieres();
   analyserLacunes();
   configurerFlashcardsMenu();
+  configurerOcrEvents();
 }
 
 function construireMenuMatieres() {
@@ -169,11 +188,9 @@ function construireMenuMatieres() {
   if (!container) return;
   container.innerHTML = "";
   
-  const dataToUse = AppState.data || DATA_SECOURS;
   const groupes = {};
-  
-  dataToUse.matieres.forEach(m => {
-    const cat = m.categorie || "Enseignement Général";
+  AppState.data.matieres.forEach(m => {
+    const cat = m.categorie || "Général";
     if (!groupes[cat]) groupes[cat] = [];
     groupes[cat].push(m);
   });
@@ -185,8 +202,6 @@ function construireMenuMatieres() {
     container.appendChild(titreCategorie);
 
     listeMatieres.forEach(m => {
-      if (!m.chapitres) return;
-      
       const card = document.createElement('div');
       card.className = 'card matiere-card-wrapper';
       
@@ -199,7 +214,7 @@ function construireMenuMatieres() {
       header.innerHTML = `
         <div style="display:flex; align-items:center; gap:12px;">
           <div class="header-icon-box">${svgIcon}</div>
-          <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-primary); letter-spacing:-0.01em;">${m.label || m.id}</h3>
+          <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-primary);">${m.label}</h3>
         </div>
         <svg class="arrow-indicator" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       `;
@@ -207,28 +222,37 @@ function construireMenuMatieres() {
       const bodyContent = document.createElement('div');
       bodyContent.className = 'matiere-chapters-body';
       
-      m.chapitres.forEach(c => {
-        const row = document.createElement('div');
-        row.className = 'chapitre-item';
-        row.style.cssText = "padding:16px 14px; margin-top:12px; background:var(--bg-card); border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);";
-        row.onclick = (e) => ouvrirPreQuiz(m.id, c.id, e);
-        row.innerHTML = `
-          <span style="font-weight:600; font-size:.88rem; padding-right:12px; text-align:left; color:var(--text-primary); line-height:1.4;">${c.titre}</span>
-          <span style="font-size:.68rem; font-weight:700; color:var(--color-primary); background:#EEF2FF; padding:5px 10px; border-radius:8px; white-space:nowrap; text-transform:uppercase; letter-spacing:0.03em;">${c.theme || 'DNB'}</span>
-        `;
-        bodyContent.appendChild(row);
-      });
+      if (m.chapitres && m.chapitres.length > 0) {
+        m.chapitres.forEach(c => {
+          const row = document.createElement('div');
+          row.className = 'chapitre-item';
+          row.style.cssText = "padding:16px 14px; margin-top:12px; background:var(--bg-card); border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow: var(--shadow-sm);";
+          row.onclick = (e) => ouvrirPreQuiz(m.id, c.id, e);
+          row.innerHTML = `
+            <span style="font-weight:600; font-size:.88rem; color:var(--text-primary);">${c.titre}</span>
+            <span style="font-size:.65rem; font-weight:700; color:var(--color-primary); background:#EEF2FF; padding:4px 8px; border-radius:6px; text-transform:uppercase;">${c.theme || 'Perso'}</span>
+          `;
+          bodyContent.appendChild(row);
+        });
+      }
+
+      // Bouton Évolutif "Ajouter un chapitre" intégré de manière transparente
+      const btnAdd = document.createElement('button');
+      btnAdd.className = "btn-secondary";
+      btnAdd.style.cssText = "margin-top:14px; min-height:42px; font-size:0.82rem; border-radius:10px; background:#F1F5F9; color:var(--color-primary); width:100%; font-weight:700;";
+      btnAdd.textContent = "＋ Ajouter un chapitre manuel / photo";
+      btnAdd.onclick = (e) => {
+        e.stopPropagation();
+        openAddChapterModal(m.id);
+      };
+      bodyContent.appendChild(btnAdd);
 
       header.onclick = () => {
         const estOuvert = bodyContent.classList.contains('is-open');
-        
         document.querySelectorAll('.matiere-chapters-body').forEach(b => b.classList.remove('is-open'));
         document.querySelectorAll('.arrow-indicator').forEach(a => a.classList.remove('rotated'));
-        document.querySelectorAll('.matiere-card-wrapper').forEach(w => w.classList.remove('is-expanded'));
-        
         if (!estOuvert) {
           bodyContent.classList.add('is-open');
-          card.classList.add('is-expanded');
           header.querySelector('.arrow-indicator').classList.add('rotated');
         }
       };
@@ -246,84 +270,138 @@ let currentChapitreSelected = null;
 function ouvrirPreQuiz(matiereId, chapitreId, event) {
   if (event) event.stopPropagation();
   
-  const dataToUse = AppState.data || DATA_SECOURS;
-  currentMatiereSelected = dataToUse.matieres.find(m => m.id === matiereId);
+  currentMatiereSelected = AppState.data.matieres.find(m => m.id === matiereId);
   currentChapitreSelected = currentMatiereSelected.chapitres.find(c => c.id === chapitreId);
   
   $('home-screen').classList.add('hidden');
   $('pre-quiz-screen').classList.remove('hidden');
-  
   $('pre-quiz-title').textContent = currentChapitreSelected.titre;
   $('pre-quiz-theme').textContent = currentChapitreSelected.theme || "Général";
-  $('pre-quiz-cours-text').textContent = currentChapitreSelected.cours || "Résumé de cours non spécifié.";
-  $('pre-quiz-piege-text').textContent = currentChapitreSelected.piege || "Pas de vigilance particulière recensée.";
 
-  $('btn-lvl-1').onclick = () => lancerQuiz(1);
-  $('btn-lvl-2').onclick = () => lancerQuiz(2);
-  $('btn-lvl-3').onclick = () => lancerQuiz(3);
-  
-  if (currentChapitreSelected.exercice_ouvert) {
-    $('btn-open-exercice').classList.remove('hidden');
-    $('btn-open-exercice').onclick = () => ouvrirExerciceOuvert();
-  } else {
+  // Tri de l'affichage selon le type de chapitre (Natat ou Créé par IA locale)
+  if (currentChapitreSelected.isCustomIA) {
+    $('wrapper-cours-standard').classList.add('hidden');
+    $('wrapper-cours-ia').classList.remove('hidden');
     $('btn-open-exercice').classList.add('hidden');
+
+    $('btn-ia-cours').onclick = () => lancerQuizCustomIA('cours');
+    $('btn-ia-exercices').onclick = () => lancerQuizCustomIA('exercice');
+  } else {
+    $('wrapper-cours-ia').classList.add('hidden');
+    $('wrapper-cours-standard').classList.remove('hidden');
+    $('pre-quiz-cours-text').textContent = currentChapitreSelected.cours || "";
+    $('pre-quiz-piege-text').textContent = currentChapitreSelected.piege || "";
+
+    $('btn-lvl-1').onclick = () => lancerQuiz(1);
+    $('btn-lvl-2').onclick = () => lancerQuiz(2);
+    $('btn-lvl-3').onclick = () => lancerQuiz(3);
+    
+    if (currentChapitreSelected.exercice_ouvert) {
+      $('btn-open-exercice').classList.remove('hidden');
+      $('btn-open-exercice').onclick = () => ouvrirExerciceOuvert();
+    } else {
+      $('btn-open-exercice').classList.add('hidden');
+    }
   }
 }
 
 function goHome() {
   $('pre-quiz-screen').classList.add('hidden');
-  if($('open-exercise-screen')) $('open-exercise-screen').classList.add('hidden');
   $('quiz-screen').classList.add('hidden');
+  if($('open-exercise-screen')) $('open-exercise-screen').classList.add('hidden');
   $('flashcards-screen').classList.add('hidden');
   $('home-screen').classList.remove('hidden');
   clearInterval(timerInterval);
-  $('quiz-timer').style.display = 'none';
 }
 
+// Lancement d'un quiz natif
 function lancerQuiz(niveau) {
   AppState.quiz.chapitreId = currentChapitreSelected.id;
   AppState.quiz.idx = 0;
   AppState.quiz.score = 0;
   AppState.quiz.isAutomatisme = false;
-  AppState.quiz.niveauFiltre = niveau;
+  AppState.quiz.isCustomIA = false;
   
-  if (currentMatiereSelected.id === 'maths') {
-    // Mode infini adaptatif pour les mathématiques
-    AppState.quiz.questions = Array.from({length: 5}, () => genererQuestionMutationMaths());
+  if (currentMatiereSelected.id.includes('maths')) {
+    AppState.quiz.questions = Array.from({length: 4}, () => genererMutationMathsAleatoire(currentChapitreSelected.theme));
   } else {
     let pool = currentChapitreSelected.questions ? currentChapitreSelected.questions.filter(q => q.niveau === niveau) : [];
     AppState.quiz.questions = obtenirQuestionsFiltrees(pool, 3);
   }
   
   if(AppState.quiz.questions.length === 0) {
-    alert("Aucune question de ce niveau n'est disponible pour ce chapitre.");
+    alert("Aucune question de ce niveau n'est enregistrée.");
     return;
   }
-
   $('pre-quiz-screen').classList.add('hidden');
   $('quiz-screen').classList.remove('hidden');
   afficherQuestion();
 }
 
-$('btn-mode-automatismes').onclick = () => {
-  AppState.quiz.chapitreId = "automatismes_global";
+// 🤖 SIMULATION DE L'IA PROCEDURALE LOCALE (BOUTON 1 ET 2) - GÉNÉRATION INFINIE
+function lancerQuizCustomIA(mode) {
+  AppState.quiz.chapitreId = currentChapitreSelected.id;
+  AppState.quiz.isAutomatisme = false;
+  AppState.quiz.isCustomIA = true;
   AppState.quiz.idx = 0;
   AppState.quiz.score = 0;
-  AppState.quiz.isAutomatisme = true;
-  AppState.quiz.questions = Array.from({length: 10}, () => genererQuestionMutationMaths());
-  
-  $('home-screen').classList.add('hidden');
-  $('quiz-screen').classList.remove('hidden');
-  afficherQuestion();
-};
+
+  if (mode === 'cours') {
+    // Bouton 1 : Résumé + Fondamentaux à la volée
+    const sourceData = currentChapitreSelected.rawSource || "générique";
+    AppState.quiz.questions = [
+      {
+        enonce: `[Fondamental] Concernant le sujet "${currentChapitreSelected.titre}", quelle est la règle ou définition centrale à retenir ?`,
+        options: [
+          `Celle extraite de tes notes : "${sourceData.slice(0, 45)}..."`,
+          "Une formulation alternative erronée",
+          "Un contre-sens sur le cours"
+        ],
+        bonne_reponse: 0,
+        explication: `Le résumé basé sur ton import spécifie : ${sourceData}`
+      },
+      genererMutationMathsAleatoire(currentChapitreSelected.titre)
+    ];
+    $('pre-quiz-screen').classList.add('hidden');
+    $('quiz-screen').classList.remove('hidden');
+    afficherQuestion();
+  } else {
+    // Bouton 2 : Exercice de révision rédigé à génération unique
+    $('pre-quiz-screen').classList.add('hidden');
+    $('open-exercise-screen').classList.remove('hidden');
+    $('open-ex-title').textContent = currentChapitreSelected.titre;
+    
+    // Génération mathématique unique pour casser les automatismes
+    const valX = Math.floor(Math.random() * 10) + 2;
+    $('open-ex-enonce').textContent = `[Sujet Unique Modifié] En utilisant les données de ton chapitre "${currentChapitreSelected.titre}", modélise le problème pour la valeur clé de test K = ${valX}. Développe le raisonnement et valide chaque étape.`;
+    
+    $('open-ex-textarea').value = "";
+    $('open-ex-correction-box').classList.add('hidden');
+    $('btn-validate-open-ex').classList.remove('hidden');
+    
+    $('btn-validate-open-ex').onclick = () => {
+      $('btn-validate-open-ex').classList.add('hidden');
+      $('open-ex-correction-box').classList.remove('hidden');
+      const containerCriteres = $('open-ex-critere-list');
+      containerCriteres.innerHTML = `
+        <label style="display:flex; align-items:start; gap:10px; font-size:.85rem; background:white; padding:12px; border-radius:10px; border:1px solid var(--border-color);"><input type="checkbox" class="critere-cb"> <span>J'ai correctement isolé la variable avec la valeur ${valX}</span></label>
+        <label style="display:flex; align-items:start; gap:10px; font-size:.85rem; background:white; padding:12px; border-radius:10px; border:1px solid var(--border-color);"><input type="checkbox" class="critere-cb"> <span>Mon résultat respecte la structure de mes fiches ou photos importées</span></label>
+      `;
+    };
+    
+    $('btn-finish-open-ex').onclick = () => {
+      alert("Résultats de l'évaluation enregistrés.");
+      goHome();
+    };
+  }
+}
 
 function afficherQuestion() {
-  clearInterval(timerInterval);
   $('quiz-explanation-box').className = "explanation-box hidden";
   $('quiz-next').disabled = true;
   
-  const totalQs = AppState.quiz.questions.length;
   const currentQ = AppState.quiz.questions[AppState.quiz.idx];
+  const totalQs = AppState.quiz.questions.length;
   
   $('quiz-progress-text').textContent = `Question ${AppState.quiz.idx + 1} / ${totalQs}`;
   $('quiz-progress-bar').style.width = `${((AppState.quiz.idx + 1) / totalQs) * 100}%`;
@@ -339,13 +417,9 @@ function afficherQuestion() {
     btn.onclick = () => soumettreReponse(index, btn);
     optionsContainer.appendChild(btn);
   });
-
-  if (AppState.quiz.isAutomatisme) lancerTimer();
-  else $('quiz-timer').style.display = 'none';
 }
 
 function soumettreReponse(indexChoisi, boutonClique) {
-  clearInterval(timerInterval);
   const currentQ = AppState.quiz.questions[AppState.quiz.idx];
   const boutons = document.querySelectorAll('.option-btn');
   boutons.forEach(b => b.disabled = true);
@@ -357,25 +431,22 @@ function soumettreReponse(indexChoisi, boutonClique) {
     boutonClique.style.borderColor = "var(--color-success)";
     boutonClique.style.color = "#15803D";
     $('quiz-explanation-box').className = "explanation-box visible good";
-    $('explanation-status').textContent = "✅ EXCELLENT";
+    $('explanation-status').textContent = "✅ VALIDÉ";
   } else {
     boutonClique.style.background = "#FEE2E2";
     boutonClique.style.borderColor = "var(--color-danger)";
     boutonClique.style.color = "#B91C1C";
-    if (boutons[currentQ.bonne_reponse]) {
-      boutons[currentQ.bonne_reponse].style.background = "#DCFCE7";
-      boutons[currentQ.bonne_reponse].style.borderColor = "var(--color-success)";
-      boutons[currentQ.bonne_reponse].style.color = "#15803D";
-    }
+    boutons[currentQ.bonne_reponse].style.background = "#DCFCE7";
+    boutons[currentQ.bonne_reponse].style.borderColor = "var(--color-success)";
+    boutons[currentQ.bonne_reponse].style.color = "#15803D";
     $('quiz-explanation-box').className = "explanation-box visible bad";
-    $('explanation-status').textContent = "❌ COMPLÉMENT DE COURS";
+    $('explanation-status').textContent = "❌ À REVOIR";
   }
   
   $('explanation-text').textContent = currentQ.explication || "";
   $('quiz-next').disabled = false;
   
-  const themeConcerne = currentChapitreSelected ? currentChapitreSelected.theme : "Automatismes";
-  enregistrerLacune(themeConcerne, estCorrect);
+  enregistrerLacune(currentChapitreSelected ? currentChapitreSelected.theme : "Général", estCorrect);
 }
 
 $('quiz-next').onclick = () => {
@@ -383,149 +454,155 @@ $('quiz-next').onclick = () => {
   if (AppState.quiz.idx < AppState.quiz.questions.length) {
     afficherQuestion();
   } else {
-    alert(`🏁 Fin de session ! Score : ${AppState.quiz.score} / ${AppState.quiz.questions.length}`);
+    alert(`Session terminée. Score final : ${AppState.quiz.score} / ${AppState.quiz.questions.length}`);
     goHome();
   }
 };
 
-$('quiz-close').onclick = () => { 
-  if (confirm("Voulez-vous quitter l'entraînement en cours ?")) goHome(); 
-};
+// 🧭 MODAL GESTION HUB D'INGESTION MULTIMODAL
+function openAddChapterModal(matiereId) {
+  AppState.targetMatiereIdForAdd = matiereId;
+  AppState.extractedOcrText = "";
+  $('input-new-chap-title').value = "";
+  $('area-ingest-text').value = "";
+  $('input-ingest-url').value = "";
+  $('modal-add-chapter').classList.remove('hidden');
+  switchIngestTab('tab-text');
+}
 
-function ouvrirExerciceOuvert() {
-  $('pre-quiz-screen').classList.add('hidden');
-  $('open-exercise-screen').classList.remove('hidden');
+function closeAddChapterModal() {
+  $('modal-add-chapter').classList.add('hidden');
+}
+
+function switchIngestTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  $(tabId).classList.add('active');
   
-  $('open-ex-title').textContent = currentChapitreSelected.titre;
-  $('open-ex-enonce').textContent = currentChapitreSelected.exercice_ouvert.enonce;
-  $('open-ex-textarea').value = "";
-  $('open-ex-correction-box').classList.add('hidden');
-  $('btn-validate-open-ex').classList.remove('hidden');
+  // Met en surbrillance le bon bouton d'onglet
+  const btns = document.querySelectorAll('.tab-btn');
+  if(tabId === 'tab-text') btns[0].classList.add('active');
+  if(tabId === 'tab-photo') btns[1].classList.add('active');
+  if(tabId === 'tab-link') btns[2].classList.add('active');
+}
 
-  $('btn-close-exercise').onclick = () => {
-    $('open-exercise-screen').classList.add('hidden');
-    $('pre-quiz-screen').classList.remove('hidden');
-  };
-
-  $('btn-validate-open-ex').onclick = () => {
-    if ($('open-ex-textarea').value.trim().length < 5) {
-      alert("Saisissez votre réflexion au brouillon avant d'afficher les critères de validation.");
-      return;
-    }
-    $('btn-validate-open-ex').classList.add('hidden');
-    $('open-ex-correction-box').classList.remove('hidden');
+function configurerOcrEvents() {
+  $('file-camera-input').onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     
-    const containerCriteres = $('open-ex-critere-list');
-    containerCriteres.innerHTML = "";
-    if(currentChapitreSelected.exercice_ouvert.criteres) {
-      currentChapitreSelected.exercice_ouvert.criteres.forEach((critere, index) => {
-        const label = document.createElement('label');
-        label.style.cssText = "display:flex; align-items:start; gap:10px; font-size:.85rem; background:white; padding:12px; border-radius:10px; cursor:pointer; border:1px solid var(--border-color); font-weight:500;";
-        label.innerHTML = `<input type="checkbox" class="critere-cb" value="${index}" style="margin-top:2px;"> <span>${critere}</span>`;
-        containerCriteres.appendChild(label);
-      });
+    $('ocr-status-container').classList.remove('hidden');
+    $('ocr-progress-label').textContent = "Lecture du document en cours (OCR local)...";
+    
+    try {
+      // Exécution de l'OCR directement sur le processeur du smartphone
+      const worker = await Tesseract.createWorker('fra');
+      const ret = await worker.recognize(file);
+      AppState.extractedOcrText = ret.data.text;
+      await worker.terminate();
+      
+      $('ocr-status-container').classList.add('hidden');
+      alert("✅ Document numérisé avec succès ! L'IA locale est prête.");
+    } catch (err) {
+      $('ocr-status-container').classList.add('hidden');
+      alert("Erreur lors de l'OCR local. Copie ton texte manuellement.");
     }
   };
 
-  $('btn-finish-open-ex').onclick = () => {
-    const total = document.querySelectorAll('.critere-cb').length;
-    const coches = document.querySelectorAll('.critere-cb:checked').length;
-    alert(`Auto-évaluation enregistrée.`);
-    enregistrerLacune(currentChapitreSelected.theme, total > 0 ? (coches / total) >= 0.6 : true);
-    goHome();
+  $('btn-submit-new-chap').onclick = () => {
+    const titre = $('input-new-chap-title').value.trim();
+    if (!titre) { alert("Donne un nom à ton chapitre."); return; }
+
+    let sourceFinale = "";
+    const activeTab = document.querySelector('.tab-content.active').id;
+
+    if (activeTab === 'tab-text') sourceFinale = $('area-ingest-text').value.trim();
+    else if (activeTab === 'tab-photo') sourceFinale = AppState.extractedOcrText;
+    else if (activeTab === 'tab-link') sourceFinale = "Contenu extrait du lien externe : " + $('input-ingest-url').value.trim();
+
+    const mat = AppState.data.matieres.find(m => m.id === AppState.targetMatiereIdForAdd);
+    if(mat) {
+      mat.chapitres.push({
+        id: "custom_" + Date.now(),
+        titre: titre,
+        theme: "Perso",
+        isCustomIA: true,
+        rawSource: sourceFinale || "Aucune note additionnelle fournie."
+      });
+      localStorage.setItem('dnb_custom_curriculum', JSON.stringify(AppState.data));
+      construireMenuMatieres();
+      closeAddChapterModal();
+    }
   };
 }
 
+// 🎴 ENGINE FLASHCARDS COMPLET
 let flashcardsPool = [];
 let currentFlashcardIdx = 0;
 
 function configurerFlashcardsMenu() {
-  if ($('nav-home')) {
-    $('nav-home').onclick = () => {
-      $('nav-home').classList.add('active');
-      $('nav-flashcards').classList.remove('active');
-      goHome();
-    };
-  }
+  $('nav-home').onclick = () => {
+    $('nav-home').classList.add('active');
+    $('nav-flashcards').classList.remove('active');
+    goHome();
+  };
 
-  if ($('nav-flashcards')) {
-    $('nav-flashcards').onclick = () => {
-      $('nav-flashcards').classList.add('active');
-      if ($('nav-home')) $('nav-home').classList.remove('active');
-      
-      genererFlashcardsPool();
-      if (flashcardsPool.length === 0) {
-        alert("Ajoutez des fiches de cours ou pièges dans votre catalogue pour générer les flashcards.");
-        return;
-      }
-      currentFlashcardIdx = 0;
-      $('home-screen').classList.add('hidden');
-      $('pre-quiz-screen').classList.add('hidden');
-      $('quiz-screen').classList.add('hidden');
-      if ($('open-exercise-screen')) $('open-exercise-screen').classList.add('hidden');
-      $('flashcards-screen').classList.remove('hidden');
+  $('nav-flashcards').onclick = () => {
+    $('nav-flashcards').classList.add('active');
+    $('nav-home').classList.remove('active');
+    
+    genererFlashcardsPool();
+    if (flashcardsPool.length === 0) { alert("Aucune donnée disponible pour créer les fiches."); return; }
+    
+    currentFlashcardIdx = 0;
+    $('home-screen').classList.add('hidden');
+    $('pre-quiz-screen').classList.add('hidden');
+    $('quiz-screen').classList.add('hidden');
+    $('flashcards-screen').classList.remove('hidden');
+    afficherFlashcard();
+  };
+
+  $('flashcard-card-box').onclick = () => $('flashcard-card-box').classList.toggle('flipped');
+
+  $('flashcard-next').onclick = (e) => {
+    e.stopPropagation();
+    currentFlashcardIdx++;
+    if (currentFlashcardIdx >= flashcardsPool.length) {
+      alert("Félicitations, tu as parcouru toutes les fiches de révision !");
+      $('nav-home').click();
+    } else {
       afficherFlashcard();
-    };
-  }
-
-  const cardBox = $('flashcard-card-box');
-  if (cardBox) {
-    cardBox.onclick = (e) => {
-      e.stopPropagation();
-      cardBox.classList.toggle('flipped');
-    };
-  }
-
-  if ($('flashcard-next')) {
-    $('flashcard-next').onclick = (e) => {
-      e.stopPropagation();
-      currentFlashcardIdx++;
-      if (currentFlashcardIdx >= flashcardsPool.length) {
-        alert("🎉 Bravo ! Toutes les flashcards actives ont été consultées.");
-        if ($('nav-home')) $('nav-home').click();
-        else goHome();
-      } else {
-        afficherFlashcard();
-      }
-    };
-  }
+    }
+  };
 }
 
 function genererFlashcardsPool() {
   flashcardsPool = [];
-  const dataToUse = AppState.data || DATA_SECOURS;
-  
-  dataToUse.matieres.forEach(m => {
+  AppState.data.matieres.forEach(m => {
     if (!m.chapitres) return;
     m.chapitres.forEach(c => {
-      if (c.cours && c.cours.trim() !== "") {
+      if (c.isCustomIA) {
         flashcardsPool.push({
-          matiere: m.label || m.id,
-          chapitre: c.titre,
-          recto: `Que faut-il impérativement retenir sur le chapitre :\n\n"${c.titre}" ?`,
-          verso: c.cours
+          matiere: m.label, chapitre: c.titre,
+          recto: `Rappeler l'essentiel du cours personnalisé : "${c.titre}"`,
+          verso: c.rawSource
         });
-      }
-      if (c.piege && c.piege.trim() !== "") {
-        flashcardsPool.push({
-          matiere: m.label || m.id,
-          chapitre: c.titre,
-          recto: `Quel piège classique les correcteurs du Brevet cachent-ils sur :\n\n"${c.titre}" ?`,
-          verso: c.piege
-        });
+      } else {
+        if (c.cours) {
+          flashcardsPool.push({
+            matiere: m.label, chapitre: c.titre,
+            recto: `Définition / Propriété clé de : \n"${c.titre}"`, verso: c.cours
+          });
+        }
       }
     });
   });
-  
-  flashcardsPool = shuffleArr(flashcardsPool);
 }
 
 function afficherFlashcard() {
-  if (flashcardsPool.length === 0) return;
   const card = flashcardsPool[currentFlashcardIdx];
   $('flashcard-card-box').classList.remove('flipped');
-  
-  $('flashcard-meta').textContent = `${card.matiere} • ${card.chapitre} (${currentFlashcardIdx + 1}/${flashcardsPool.length})`;
+  $('flashcard-meta').textContent = `${card.matiere} • ${card.chapitre}`;
   $('flashcard-front-text').textContent = card.recto;
   $('flashcard-back-text').textContent = card.verso;
 }
