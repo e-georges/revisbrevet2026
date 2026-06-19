@@ -1,5 +1,5 @@
 // ==========================================================================
-// RévisSeconde Studio Pro — app.js (Moteur Synchrone Complet + Conseil du jour)
+// RévisSeconde Studio Pro — app.js (Moteur Synchrone à Routage Popups)
 // ==========================================================================
 
 const AppState = {
@@ -51,7 +51,7 @@ const DATA_INITIALE = {
           id: "mole",
           titre: "La quantité de matière (La Mole)",
           theme: "Chimie",
-          cours: "La mole (mol) sert à dénombrer les entités chimiques microscopiques. Un échantillon de 1 mole comporte exactement 6,02 x 10^23 entités (Constante d'Avogadro NA).",
+          cours: "La mole (mol) sert à d'ombrer les entités chimiques microscopiques. Un échantillon de 1 mole comporte exactement 6,02 x 10^23 entités (Constante d'Avogadro NA).",
           piege: "Ne mélange jamais la masse totale m (exprimée en grammes) et le nombre de moles n (en mol).",
           conseil: "Apprends par cœur la relation n = m / M et ses unités associées."
         }
@@ -67,12 +67,12 @@ const SVGMappings = {
 };
 
 function initialiserApp() {
-  const local = localStorage.getItem('revis_seconde_studio_v4');
+  const local = localStorage.getItem('revis_seconde_studio_v5');
   if (local) {
     AppState.data = JSON.parse(local);
   } else {
     AppState.data = DATA_INITIALE;
-    localStorage.setItem('revis_seconde_studio_v4', JSON.stringify(DATA_INITIALE));
+    localStorage.setItem('revis_seconde_studio_v5', JSON.stringify(DATA_INITIALE));
   }
   construireMenuMatieres();
   configurerOcrEvents();
@@ -119,7 +119,7 @@ function construireMenuMatieres() {
         listCont.appendChild(row);
       });
     } else {
-      listCont.innerHTML = `<p style="margin:0; padding:8px; font-size:0.8rem; color:var(--text-secondary); text-align:center;">Aucun chapitre. Ajoutez-en un ci-dessous !</p>`;
+      listCont.innerHTML = `<p style="margin:0; padding:8px; font-size:0.8rem; color:var(--text-secondary); text-align:center;">Aucun chapitre.</p>`;
     }
 
     const btnAdd = document.createElement('button');
@@ -147,12 +147,81 @@ function construireMenuMatieres() {
   });
 }
 
+function ouvrirTableauDeBordChapitre(matiereId, chapitreId, event) {
+  if (event) event.stopPropagation();
+  AppState.activeMatiereId = matiereId;
+  AppState.activeChapitreId = chapitreId;
+
+  const mat = AppState.data.matieres.find(m => m.id === matiereId);
+  const chap = mat.chapitres.find(c => c.id === chapitreId);
+  
+  $('home-screen').style.display = 'none';
+  $('pre-quiz-screen').style.display = 'block';
+  
+  $('chapter-matiere-badge').textContent = mat.label;
+  $('pre-quiz-title').textContent = chap.titre;
+  
+  // Remplissage dynamique du Conseil du jour
+  if(chap.conseil && chap.conseil.trim() !== "") {
+    $('wrapper-conseil').style.display = 'block';
+    $('pre-quiz-conseil-text').textContent = chap.conseil;
+  } else {
+    $('wrapper-conseil').style.display = 'block';
+    $('pre-quiz-conseil-text').textContent = "Pense à t'auto-évaluer régulièrement grâce au bouton Exercices !";
+  }
+}
+
+// MANAGEMENT DES POPUPS EN CASCADE
+
+function ouvrirPopupSummary() {
+  const mat = AppState.data.matieres.find(m => m.id === AppState.activeMatiereId);
+  const chap = mat.chapitres.find(c => c.id === AppState.activeChapitreId);
+
+  $('popup-cours-text').textContent = chap.cours || "Aucun texte ou résumé enregistré.";
+  
+  if(chap.piege) {
+    $('popup-wrapper-piege').style.display = 'block';
+    $('popup-piege-text').textContent = chap.piege;
+  } else {
+    $('popup-wrapper-piege').style.display = 'none';
+  }
+
+  $('modal-view-summary').style.display = 'flex';
+}
+
+function fermerPopupSummary() {
+  $('modal-view-summary').style.display = 'none';
+}
+
+function ouvrirPopupExercises() {
+  $('box-quiz-flash').style.display = 'none';
+  $('modal-view-exercises').style.display = 'flex';
+}
+
+function fermerPopupExercises() {
+  $('modal-view-exercises').style.display = 'none';
+}
+
+function genererQuizFlash() {
+  const mat = AppState.data.matieres.find(m => m.id === AppState.activeMatiereId);
+  const chap = mat.chapitres.find(c => c.id === AppState.activeChapitreId);
+  
+  $('box-quiz-flash').style.display = 'block';
+  $('text-quiz-reponse').style.display = 'none';
+  
+  $('text-quiz-question').textContent = `Explique ce que contient ta fiche : "${chap.titre}". Qu'as-tu mémorisé ?`;
+  $('text-quiz-reponse').textContent = `📚 ÉLÉMENTS DE RÉPONSES ATTENDUS (Notes) :\n\n${chap.cours || 'Vide'}`;
+  
+  $('btn-reveal-flash').onclick = () => {
+    $('text-quiz-reponse').style.display = 'block';
+  };
+}
+
 function openAddChapterModal(matiereId, chapitreId = null) {
   AppState.targetMatiereIdForAdd = matiereId;
   AppState.targetChapitreIdForEdit = chapitreId;
   
   if(chapitreId) {
-    // Mode Modification : Chargement des données existantes
     const mat = AppState.data.matieres.find(m => m.id === matiereId);
     const chap = mat.chapitres.find(c => c.id === chapitreId);
     $('input-new-chap-title').value = chap.titre;
@@ -160,7 +229,6 @@ function openAddChapterModal(matiereId, chapitreId = null) {
     $('area-ingest-text').value = chap.cours || "";
     $('input-ingest-url').value = chap.lien || "";
   } else {
-    // Mode Nouvel Ajout : Vider les formulaires
     $('input-new-chap-title').value = "";
     $('input-new-chap-conseil').value = "";
     $('area-ingest-text').value = "";
@@ -186,73 +254,8 @@ function switchIngestTab(tabId) {
   if(tabId === 'tab-link') btns[2].classList.add('active');
 }
 
-function ouvrirTableauDeBordChapitre(matiereId, chapitreId, event) {
-  if (event) event.stopPropagation();
-  AppState.activeMatiereId = matiereId;
-  AppState.activeChapitreId = chapitreId;
-
-  const mat = AppState.data.matieres.find(m => m.id === matiereId);
-  const chap = mat.chapitres.find(c => c.id === chapitreId);
-  
-  $('home-screen').style.display = 'none';
-  $('pre-quiz-screen').style.display = 'block';
-  
-  $('chapter-matiere-badge').textContent = mat.label;
-  $('pre-quiz-title').textContent = chap.titre;
-  $('pre-quiz-cours-text').textContent = chap.cours || "Contenu vide. Cliquez sur Modifier pour l'enrichir.";
-  
-  // Remplissage du Conseil du jour (dynamique et évolutif)
-  if(chap.conseil && chap.conseil.trim() !== "") {
-    $('wrapper-conseil').style.display = 'block';
-    $('pre-quiz-conseil-text').textContent = chap.conseil;
-  } else {
-    // Conseil par défaut évolutif basé sur le contenu si rien n'est écrit
-    $('wrapper-conseil').style.display = 'block';
-    $('pre-quiz-conseil-text').textContent = "Pense à relire tes notes régulièrement et à tester tes compétences avec l'onglet Exercices !";
-  }
-
-  if(chap.piege) {
-    $('wrapper-piege').style.display = 'block';
-    $('pre-quiz-piege-text').textContent = chap.piege;
-  } else {
-    $('wrapper-piege').style.display = 'none';
-  }
-
-  $('box-quiz-flash').style.display = 'none';
-  switchChapterSubView('view-summary');
-}
-
-function switchChapterSubView(view) {
-  document.querySelectorAll('.chapter-sub-view').forEach(v => v.style.display = 'none');
-  document.querySelectorAll('#pre-quiz-screen .btn-primary, #pre-quiz-screen .btn-success').forEach(b => b.style.opacity = '0.6');
-  
-  if(view === 'view-summary') {
-    $('sub-view-summary').style.display = 'block';
-    $('btn-sub-summary').style.opacity = '1';
-  }
-  if(view === 'view-exercises') {
-    $('sub-view-exercises').style.display = 'block';
-    $('btn-sub-exercises').style.opacity = '1';
-  }
-}
-
 function preparerModificationChapitre() {
   openAddChapterModal(AppState.activeMatiereId, AppState.activeChapitreId);
-}
-
-function genererQuizFlash() {
-  const mat = AppState.data.matieres.find(m => m.id === AppState.activeMatiereId);
-  const chap = mat.chapitres.find(c => c.id === AppState.activeChapitreId);
-  
-  $('box-quiz-flash').style.display = 'block';
-  $('text-quiz-reponse').style.display = 'none';
-  
-  $('text-quiz-question').textContent = `Explique avec tes propres mots ce que contient la fiche : "${chap.titre}". Quelles sont les notions fondamentales ?`;
-  $('text-quiz-reponse').textContent = `📚 ÉLÉMENTS DE RÉPONSES ATTENDUS :\n\n${chap.cours || 'Aucune note'}`;
-  
-  $('btn-reveal-flash').onclick = () => {
-    $('text-quiz-reponse').style.display = 'block';
-  };
 }
 
 function configurerOcrEvents() {
@@ -272,16 +275,16 @@ function configurerOcrEvents() {
       $('area-ingest-text').value += separateur + AppState.extractedOcrText;
       
       switchIngestTab('tab-text');
-      alert("✅ Texte extrait ajouté avec succès !");
+      alert("✅ Texte extrait ajouté !");
     } catch (err) {
       $('ocr-status-container').style.display = 'none';
-      alert("Échec de la lecture optique.");
+      alert("Échec de l'OCR.");
     }
   };
 
   $('btn-submit-new-chap').onclick = () => {
     const titre = $('input-new-chap-title').value.trim();
-    if (!titre) return alert("Veuillez donner un titre à ce chapitre.");
+    if (!titre) return alert("Veuillez donner un titre.");
 
     const conseil = $('input-new-chap-conseil').value.trim();
     const texteNotes = $('area-ingest-text').value.trim();
@@ -290,7 +293,6 @@ function configurerOcrEvents() {
     const mat = AppState.data.matieres.find(m => m.id === AppState.targetMatiereIdForAdd);
     
     if(AppState.targetChapitreIdForEdit) {
-      // ÉDITION ET MUTATION DES DONNÉES EN CONTINU
       const chap = mat.chapitres.find(c => c.id === AppState.targetChapitreIdForEdit);
       if(chap) {
         chap.titre = titre;
@@ -299,7 +301,6 @@ function configurerOcrEvents() {
         if(lienWeb) chap.lien = lienWeb;
       }
     } else {
-      // CRÉATION INITIALE
       if(!mat.chapitres) mat.chapitres = [];
       mat.chapitres.push({
         id: "custom_" + Date.now(),
@@ -311,7 +312,7 @@ function configurerOcrEvents() {
       });
     }
 
-    localStorage.setItem('revis_seconde_studio_v4', JSON.stringify(AppState.data));
+    localStorage.setItem('revis_seconde_studio_v5', JSON.stringify(AppState.data));
     construireMenuMatieres();
     closeAddChapterModal();
     
@@ -325,6 +326,8 @@ function goHome() {
   $('pre-quiz-screen').style.display = 'none';
   $('home-screen').style.display = 'block';
   closeAddChapterModal();
+  fermerPopupSummary();
+  fermerPopupExercises();
 }
 
 document.addEventListener('DOMContentLoaded', initialiserApp);
