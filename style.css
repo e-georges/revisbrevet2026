@@ -74,7 +74,6 @@ body {
   font-size: 0.8rem; border-radius: 10px; margin-top: 12px; cursor: pointer;
 }
 
-/* FIX CRITIQUE COUNCILS : display: none initial par défaut pour éviter le recouvrement total */
 .modal-backdrop {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -93,12 +92,19 @@ body {
 .tab-content { padding: 16px; }
 
 .input-field { width: 100%; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 12px; outline: none; font-size: 0.9rem; }
+.input-field:focus { border-color: var(--color-primary); }
 
-.btn-primary { width: 100%; min-height: 44px; background: var(--color-primary); color: white; font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }
-.btn-success { width: 100%; min-height: 44px; background: var(--color-success); color: white; font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }
-.btn-secondary { width: 100%; min-height: 44px; background: #F1F5F9; color: var(--text-secondary); font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }
+.file-dropzone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 24px 12px; text-align: center; background: #F8FAFC; cursor: pointer; }
 
-.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; }
+.btn-primary { width: 100%; min-height: 44px; background: var(--color-primary); color: white; font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
+.btn-success { width: 100%; min-height: 44px; background: var(--color-success); color: white; font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
+.btn-secondary { width: 100%; min-height: 44px; background: #F1F5F9; color: var(--text-secondary); font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
+
+.bottom-nav { 
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px; 
+  background: white; border-top: 1px solid var(--border-color); 
+  display: flex; justify-content: center; align-items: center; z-index: 10;
+}
 .nav-item { background: none; border: none; color: var(--color-primary); font-family: inherit; font-weight: 700; cursor: pointer; }
 
 .spinner { width: 22px; height: 22px; border: 3px solid var(--border-color); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -106,9 +112,9 @@ body {
 
 /* Styling du Logo Académique */
 .app-logo {
-  height: 70px;             /* Hauteur élégante et discrète pour un écran mobile */
-  width: auto;              /* Conserve les proportions d'origine de l'image */
+  height: 70px;
+  width: auto;
   object-fit: contain;
-  border-radius: 8px;       /* Léger arrondi pour adoucir les angles */
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05); /* Discret effet de relief */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
