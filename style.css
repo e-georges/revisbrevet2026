@@ -43,6 +43,14 @@ body {
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
 }
 
+/* LE STYLE DU PAVÉ DU CONSEIL DU JOUR */
+.card-conseil {
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  border-radius: var(--radius); padding: 14px; margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(217, 119, 6, 0.04);
+}
+
 .matiere-trigger-header {
   display: flex; justify-content: space-between; align-items: center; cursor: pointer;
 }
@@ -79,7 +87,7 @@ body {
   font-size: 0.8rem; border-radius: 10px; margin-top: 12px; cursor: pointer;
 }
 
-/* SYSTÈME DE FENÊTRES MODALES COMPATIBLES */
+/* SYSTÈME DE FENÊTRES MODALES */
 .modal-backdrop {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -96,7 +104,7 @@ body {
 .input-field { width: 100%; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 12px; outline: none; font-size: 0.9rem; }
 .input-field:focus { border-color: var(--color-primary); }
 
-.file-dropzone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 24px 10px; text-align: center; background: #F8FAFC; cursor: pointer; }
+.file-dropzone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 24px 12px; text-align: center; background: #F8FAFC; cursor: pointer; }
 
 /* BOUTONS ET NAVIGATION GLOBALE */
 .btn-primary { width: 100%; min-height: 44px; background: var(--color-primary); color: white; font-family: inherit; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
