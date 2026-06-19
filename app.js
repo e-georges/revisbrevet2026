@@ -161,13 +161,19 @@ function ouvrirTableauDeBordChapitre(matiereId, chapitreId, event) {
   $('chapter-matiere-badge').textContent = mat.label;
   $('pre-quiz-title').textContent = chap.titre;
   
-  // Remplissage dynamique du Conseil du jour
-  if(chap.conseil && chap.conseil.trim() !== "") {
+  // 🎯 STRATÉGIE CONSEIL DU JOUR - ORIENTÉ EXAMEN & FONDAMENTAUX
+  if (chap.conseil && chap.conseil.trim() !== "") {
+    // Si un conseil spécifique examen est déjà saisi/importé, on l'affiche
     $('wrapper-conseil').style.display = 'block';
     $('pre-quiz-conseil-text').textContent = chap.conseil;
-  } else {
+  } else if (chap.piege && chap.piege.trim() !== "") {
+    // S'il n'y en a pas, on génère un conseil de méthodologie basé sur le piège à éviter le jour J
     $('wrapper-conseil').style.display = 'block';
-    $('pre-quiz-conseil-text').textContent = "Pense à t'auto-évaluer régulièrement grâce au bouton Exercices !";
+    $('pre-quiz-conseil-text').innerHTML = `<strong>Règle d'or pour l'examen :</strong> Pour maximiser tes points sur <em>"${chap.titre}"</em>, mémorise le piège récurrent : "${chap.piege}"`;
+  } else {
+    // Conseil par défaut orienté performance et restitution active
+    $('wrapper-conseil').style.display = 'block';
+    $('pre-quiz-conseil-text').textContent = `Objectif Examen : Entraîne-toi à réécrire les mots-clés du cours de tête en moins de 2 minutes chrono avec l'entraînement Flash.`;
   }
 }
 
