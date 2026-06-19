@@ -3,564 +3,137 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>RévisBrevet 2026</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <style>
-    /* ── BASE & CLAYMORPHISM SYSTEM ── */
-    :root {
-      --bg:          #F4F1FA;
-      --card-bg:     rgba(255, 255, 255, 0.85);
-      --text:        #332F3A;
-      --muted:       #7C7585;
-      --accent:      #7C3AED;
-      --clay-border: rgba(255, 255, 255, 0.6);
-      --shadow-clay: inset 0 4px 12px rgba(255, 255, 255, 0.8), 0 10px 25px rgba(124, 58, 237, 0.12);
-    }
-
-    body.dark-bg {
-      --bg: #151124;
-      --card-bg: rgba(30, 25, 50, 0.85);
-      --text: #F1EDF9;
-      --muted: #A39BB0;
-      --clay-border: rgba(255, 255, 255, 0.1);
-      --shadow-clay: inset 0 2px 6px rgba(255, 255, 255, 0.1), 0 10px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      min-height: 100vh;
-      transition: background 0.3s ease;
-    }
-
-    .app-container { display: flex; width: 100%; }
-    
-    /* SIDEBAR */
-    .sidebar {
-      width: 260px;
-      background: var(--card-bg);
-      border-right: 2px solid var(--clay-border);
-      padding: 20px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .sidebar-brand { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.2rem; }
-    .btn-theme-toggle { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
-    
-    .user-profile-widget {
-      background: var(--card-bg);
-      padding: 12px;
-      border-radius: 20px;
-      border: 1px solid var(--clay-border);
-      box-shadow: var(--shadow-clay);
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .profile-avatar-wrapper { font-size: 2rem; }
-    .profile-info h3 { margin: 0; font-size: 1rem; }
-    .profile-meta { font-size: 0.75rem; color: var(--muted); }
-    .streak-badge { font-size: 0.8rem; font-weight: bold; color: var(--accent); }
-
-    .nav-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
-    .nav-links li { padding: 12px 16px; border-radius: 14px; cursor: pointer; font-weight: 700; transition: background 0.2s; }
-    .nav-links li:hover { background: rgba(124, 58, 237, 0.1); color: var(--accent); }
-
-    /* MAIN */
-    .main-content { flex: 1; padding: 30px; box-sizing: border-box; min-width: 0; }
-    .app-screen { max-width: 800px; margin: 0 auto; }
-    .hidden { display: none !important; }
-
-    /* CARDS TYPE CLAYMORPHISM */
-    .welcome-card {
-      background: linear-gradient(135deg, #7C3AED, #A78BFA);
-      color: white;
-      padding: 30px;
-      border-radius: 28px;
-      margin-bottom: 30px;
-      box-shadow: 0 15px 30px rgba(124, 58, 237, 0.25);
-    }
-    .welcome-card h1 { margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 900; }
-    .countdown-text { font-weight: 700; opacity: 0.9; margin-bottom: 20px; }
-
-    .progress-ring-container { position: relative; width: 120px; height: 120px; margin: 0 auto; }
-    .progress-ring { transform: rotate(-90deg); }
-    .progress-ring__circle { transition: stroke-dashoffset 0.35s; transform-origin: 50% 50%; }
-    .progress-ring-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem; }
-
-    .section-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 15px; }
-    .matieres-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-    .matiere-card {
-      background: var(--card-bg);
-      border: 1px solid var(--clay-border);
-      box-shadow: var(--shadow-clay);
-      border-radius: 24px;
-      padding: 20px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .matiere-card:hover { transform: translateY(-4px); }
-    .matiere-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .matiere-emoji { font-size: 1.5rem; }
-    .matiere-header h3 { margin: 0; font-size: 1.1rem; font-weight: 900; }
-    .matiere-meta { font-size: 0.8rem; color: var(--muted); margin: 0 0 8px 0; }
-    .matiere-progress-text { font-size: 0.85rem; font-weight: 700; opacity: 0.8; }
-
-    /* CHAPITRES */
-    .screen-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-    .btn-back { background: var(--card-bg); border: 1px solid var(--clay-border); box-shadow: var(--shadow-clay); padding: 8px 16px; border-radius: 14px; font-weight: 700; cursor: pointer; color: var(--text); }
-    .chapitres-list { display: flex; flex-direction: column; gap: 12px; }
-    .chapitre-row {
-      background: var(--card-bg);
-      border: 1px solid var(--clay-border);
-      box-shadow: var(--shadow-clay);
-      padding: 16px;
-      border-radius: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-    }
-    .chapitre-info h4 { margin: 0 0 4px 0; font-size: 1rem; }
-    .chapitre-tag { font-size: 0.75rem; background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 8px; font-weight: bold; color: var(--muted); }
-    .badge-done { font-size: 0.8rem; color: #2EC4B6; font-weight: bold; margin-left: 8px; }
-    .chapitre-actions { display: flex; gap: 8px; }
-    
-    .btn-action-quiz { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-    .btn-action-fiche { background: rgba(124, 58, 237, 0.1); color: var(--accent); border: 1px solid rgba(124, 58, 237, 0.2); padding: 8px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-
-    /* QUIZ BAR & UI */
-    .quiz-navbar { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-    .quiz-progress-bar-bg { flex: 1; height: 10px; background: rgba(0,0,0,0.05); border-radius: 5px; overflow: hidden; }
-    .quiz-progress-fill { height: 100%; width: 0%; background: #2EC4B6; transition: width 0.3s; }
-    .quiz-card { background: var(--card-bg); border: 1px solid var(--clay-border); box-shadow: var(--shadow-clay); padding: 24px; border-radius: 28px; margin-bottom: 20px; }
-    .quiz-meta-info { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold; margin-bottom: 12px; color: var(--muted); }
-    .quiz-question { font-size: 1.25rem; font-weight: 900; margin: 0 0 20px 0; }
-    .quiz-options-container { display: flex; flex-direction: column; gap: 10px; }
-    
-    .option-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--clay-border);
-      box-shadow: var(--shadow-clay);
-      padding: 14px;
-      border-radius: 16px;
-      text-align: left;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--text);
-      transition: all 0.2s;
-    }
-    .option-btn:not(:disabled):hover { background: rgba(124, 58, 237, 0.05); }
-    .option-btn.correct { background: #2EC4B6 !important; color: white !important; }
-    .option-btn.wrong { background: #E84855 !important; color: white !important; }
-    
-    .quiz-feedback { padding: 14px; background: rgba(0,0,0,0.03); border-radius: 14px; margin-top: 15px; font-size: 0.9rem; }
-    .btn-primary { background: var(--accent); color: white; border: none; padding: 14px 28px; border-radius: 16px; font-weight: 900; font-size: 1rem; cursor: pointer; width: 100%; box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2); }
-    .btn-danger { background: #E84855; color: white; border: none; padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer; }
-    .btn-quiz-close { background: none; border: none; color: var(--muted); font-weight: bold; cursor: pointer; }
-
-    /* BOTTOM SHEET */
-    .bottom-sheet { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2000; display: flex; flex-direction: column; justify-content: flex-end; }
-    .sheet-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 21, 44, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-    .sheet-content { position: relative; width: 100%; max-height: 82vh; background: var(--card-bg); border-radius: 32px 32px 0 0; padding: 24px 20px; box-sizing: border-box; box-shadow: var(--shadow-clay); border-top: 2px solid var(--clay-border); overflow-y: auto; z-index: 2100; transform: translateY(0); transition: transform 0.3s ease-out; }
-    .bottom-sheet.hidden { display: none !important; }
-    .sheet-drag-handle { width: 48px; height: 6px; background: var(--muted); opacity: 0.4; border-radius: 4px; margin: 0 auto; position: absolute; top: 10px; left: calc(50% - 24px); }
-    .sheet-close-btn { background: rgba(0, 0, 0, 0.05); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; color: var(--text); cursor: pointer; margin-left: auto; display: flex; align-items: center; justify-content: center; }
-    
-    .fiche-container { display: flex; flex-direction: column; gap: 14px; }
-    .fiche-header { display: flex; align-items: center; gap: 12px; }
-    .fiche-icon { font-size: 2rem; }
-    .fiche-divider { border: none; height: 2px; background: var(--muted); opacity: 0.15; }
-    .fiche-section { padding: 14px; border-radius: 18px; box-shadow: var(--shadow-clay); border: 1px solid var(--clay-border); }
-    .fiche-section h3 { margin: 0 0 6px 0; font-size: 0.95rem; }
-    .fiche-section.notion { background: rgba(124, 58, 237, 0.05); }
-    .fiche-section.exemple { background: rgba(46, 196, 182, 0.05); }
-    .fiche-block-code { font-family: monospace; background: rgba(0, 0, 0, 0.04); padding: 8px; border-radius: 8px; margin-top: 4px; font-weight: bold; }
-    .fiche-section.piege { background: rgba(232, 72, 85, 0.07); border: 1.5px solid rgba(232, 72, 85, 0.2); }
-    .fiche-section.piege h3 { color: #E84855; }
-
-    .btn-sheet-shortcut { background: rgba(124, 58, 237, 0.1); color: var(--accent); border: 1px solid rgba(124, 58, 237, 0.2); padding: 6px 14px; border-radius: 20px; font-weight: 700; cursor: pointer; }
-    .fab-examen-blanc { position: fixed; bottom: 30px; right: 30px; background: #E84855; color: white; border: none; padding: 14px 20px; border-radius: 50px; font-weight: 900; box-shadow: 0 10px 20px rgba(232,72,85,0.3); cursor: pointer; z-index: 99; }
-    .settings-card { background: var(--card-bg); border: 1px solid var(--clay-border); padding: 20px; border-radius: 20px; box-shadow: var(--shadow-clay); }
-    .clay-input { width: 100%; padding: 12px; border: 1px solid var(--clay-border); background: var(--bg); border-radius: 12px; color: var(--text); box-sizing: border-box; font-family: inherit; font-weight: bold; }
-    .text-center { text-align: center; }
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #332F3A; color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; z-index: 9999; }
-
-    @media (max-width: 768px) {
-      body { flex-direction: column; }
-      .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; border-right: none; border-bottom: 2px solid var(--clay-border); padding: 10px 15px; }
-      .user-profile-widget, .nav-links { display: none !important; }
-      .main-content { padding: 15px; }
-      .fab-examen-blanc { bottom: 20px; right: 20px; padding: 10px 15px; font-size: 0.85rem; }
-    }
-  </style>
+  <title>RévisBrevet 2026 — Expert</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="app-container">
-  <aside class="sidebar">
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <span>🎓 RévisBrevet</span>
-      <button id="btn-theme" class="btn-theme-toggle">🌙</button>
+      <span>🎓 RévisBrevet Pro</span>
+      <button id="theme-toggle" class="btn-icon">🌙</button>
     </div>
+
     <div class="user-profile-widget">
-      <div class="profile-avatar-wrapper"><span id="display-avatar">🦊</span></div>
+      <div class="profile-avatar-wrapper"><span>🦊</span></div>
       <div class="profile-info">
-        <h3 id="display-username">Élève de 3e</h3>
-        <div class="profile-meta">Brevet des Collèges 2026</div>
-        <div class="streak-badge">🔥 <span id="display-streak">0</span> acquis</div>
+        <h3>Élève de 3e</h3>
+        <div class="profile-meta">Brevet National 2026</div>
+        <div class="streak-badge">🔥 <span id="display-streak">0</span> Jours</div>
       </div>
     </div>
     <ul class="nav-links" id="sidebar-menu"></ul>
   </aside>
 
   <main class="main-content">
-    <section id="home-screen" class="app-screen">
-      <div class="welcome-card text-center">
-        <h1>Prêt pour le Brevet 2026 ? 🚀</h1>
-        <p id="countdown-display" class="countdown-text">Calcul du temps restant...</p>
-        <div class="progress-ring-container">
-          <svg class="progress-ring" width="120" height="120">
-            <circle class="progress-ring__background" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
-            <circle id="global-progress-circle" class="progress-ring__circle" stroke="#FFFFFF" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
-          </svg>
-          <div id="global-progress-text" class="progress-ring-text">0%</div>
+    
+    <section id="home-screen" class="view-section">
+      <div class="dashboard-header">
+        <h1>Mon Tableau de Bord 🚀</h1>
+        <p>Prépare tes épreuves écrites avec un entraînement adaptatif.</p>
+      </div>
+
+      <div id="lacunes-box" class="card hidden" style="background:#FFF5F5; border-left:5px solid var(--color-danger); padding:16px; margin-bottom:20px; border-radius:12px;">
+        <h4 style="margin:0 0 6px; color:var(--color-danger); display:flex; align-items:center; gap:8px;">⚠️ Diagnostic Prédictif Intelligent</h4>
+        <p id="lacunes-text" style="margin:0; font-size:.86rem; line-height:1.4; color:#9B1C1C;"></p>
+      </div>
+
+      <div class="card" id="btn-mode-automatismes" style="background: linear-gradient(135deg, #7C3AED, #9333EA); color: white; border-radius: 14px; padding: 18px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(124,58,237,0.25); cursor: pointer; transition: transform .2s;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 2.2rem;">⚡</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.3px;">Automatismes (Examen Oral/Écrit 2026)</h3>
+            <p style="margin: 4px 0 0; font-size: 0.84rem; opacity: 0.92; line-height: 1.3;">10 questions ultra-rapides chronométrées sans calculatrice !</p>
+          </div>
         </div>
       </div>
-      <div class="section-title">📚 Tes Matières Officielles</div>
-      <div id="matieres-grid" class="matieres-grid"></div>
+
+      <h2>📚 Matières d'examen</h2>
+      <div class="matieres-grid" id="matieres-container"></div>
     </section>
 
-    <section id="chapitres-screen" class="app-screen hidden">
-      <div class="screen-header">
-        <button class="btn-back" onclick="goHome()">⬅️ Retour</button>
-        <h2 id="matiere-title">Matière</h2>
-      </div>
-      <div id="chapitres-list" class="chapitres-list"></div>
-    </section>
+    <section id="pre-quiz-screen" class="view-section hidden">
+      <button class="btn-secondary" onclick="goHome()" style="margin-bottom:16px;">⬅️ Retour</button>
+      
+      <div class="card" style="padding:24px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge" id="pre-quiz-theme">Thème</span>
+          <h2 id="pre-quiz-title" style="margin:0;">Titre du Chapitre</h2>
+        </div>
+        
+        <div style="margin:20px 0; padding:16px; background:var(--bg-app); border-radius:10px;">
+          <h4 style="margin:0 0 8px; color:var(--color-primary);">📖 Fiche Récapitulative du Cours</h4>
+          <p id="pre-quiz-cours-text" style="margin:0; line-height:1.5; font-size:.92rem;"></p>
+        </div>
 
-    <section id="quiz-screen" class="app-screen hidden">
-      <div class="quiz-navbar">
-        <button id="quiz-close" class="btn-quiz-close">✕ Quitter</button>
-        <div class="quiz-progress-bar-bg">
-          <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
+        <div style="margin:16px 0; padding:12px; background:#FFFBEB; border-left:4px solid var(--color-warning); border-radius:6px; font-size:.85rem; color:#92400E;">
+          <strong>⚠️ Le Piège classique à l'examen :</strong> <span id="pre-quiz-piege-text"></span>
         </div>
-        <button id="quiz-view-sheet" class="btn-sheet-shortcut">📖 Fiche</button>
-      </div>
-      <div id="quiz-card-box" class="quiz-card">
-        <div class="quiz-meta-info">
-          <span id="quiz-q-index">Question 1/5</span>
-          <span id="quiz-q-type">BREVET</span>
-        </div>
-        <h3 id="quiz-question-text" class="quiz-question">Énoncé ?</h3>
-        <div id="quiz-options-box" class="quiz-options-container"></div>
-        <div id="quiz-feedback-box" class="quiz-feedback hidden">
-          <p id="quiz-feedback-text"></p>
-        </div>
-      </div>
-      <button id="quiz-next" class="btn-primary hidden">Continuer ➡️</button>
-    </section>
 
-    <section id="score-screen" class="app-screen hidden">
-      <div class="score-card text-center" style="background:var(--card-bg); padding:40px; border-radius:28px; box-shadow:var(--shadow-clay);">
-        <span style="font-size:4rem;">🎉</span>
-        <h2>Session Terminée !</h2>
-        <div style="font-size:3rem; font-weight:900; color:var(--accent); margin:15px 0;">
-          <span id="score-obtained">0</span> / <span id="score-total">5</span>
+        <h3 style="margin-top:24px;">🎯 Choisissez votre type d'entraînement :</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+          <button class="btn-primary" id="btn-lvl-1" style="background:#22C55E;">Niv 1<br><small style="font-size:10px;">Fondations</small></button>
+          <button class="btn-primary" id="btn-lvl-2" style="background:#EAB308;">Niv 2<br><small style="font-size:10px;">Application</small></button>
+          <button class="btn-primary" id="btn-lvl-3" style="background:#EF4444;">Niv 3<br><small style="font-size:10px;">Brevet</small></button>
         </div>
-        <p id="score-comment">Bien joué !</p>
-        <button class="btn-primary" onclick="goHome()" style="margin-top:15px;">Retour au tableau de bord</button>
+
+        <div style="text-align:center; margin-top:14px; border-top:1px solid var(--border-color); padding-top:16px;">
+          <button class="btn-secondary" id="btn-open-exercice" style="background:var(--color-primary); color:white; width:100%;">✍️ Tenter l'Exercice Ouvert de Rédaction / Justification</button>
+        </div>
       </div>
     </section>
 
-    <section id="settings-screen" class="app-screen hidden">
-      <div class="screen-header"><h2>⚙️ Profil & Options</h2></div>
-      <div class="settings-card">
-        <h3>Profil Élève</h3>
-        <div style="margin-bottom:12px;">
-          <label style="display:block; margin-bottom:5px; font-weight:700;">Nom d'utilisateur</label>
-          <input type="text" id="input-username" class="clay-input" value="Élève de 3e">
+    <section id="open-exercise-screen" class="view-section hidden">
+      <button class="btn-secondary" id="btn-close-exercise" style="margin-bottom:16px;">⬅️ Annuler l'exercice</button>
+      <div class="card" style="padding:24px;">
+        <span class="badge" style="background:var(--color-primary); color:white;">Exercice Ouvert Rédactionnel</span>
+        <h3 id="open-ex-title" style="margin-top:12px;">Sujet du Brevet</h3>
+        <p id="open-ex-enonce" style="background:var(--bg-app); padding:16px; border-radius:10px; line-height:1.5; font-weight:500;"></p>
+        
+        <label style="font-weight:600; display:block; margin:16px 0 8px;">Rédige ta réponse ci-dessous :</label>
+        <textarea id="open-ex-textarea" rows="6" placeholder="Saisis ton calcul argumenté ou ton paragraphe d'Histoire/Français..." style="width:100%; font-family:inherit; padding:12px; border-radius:8px; border:1.5px solid var(--border-color); box-sizing:border-box; outline:none; font-size:.95rem; line-height:1.4;"></style></textarea>
+        
+        <button class="btn-primary" id="btn-validate-open-ex" style="width:100%; margin-top:14px; padding:14px;">🔎 Valider et voir la grille de correction</button>
+
+        <div id="open-ex-correction-box" class="hidden" style="margin-top:24px; padding-top:20px; border-top:2px dashed var(--border-color);">
+          <h4 style="color:var(--color-accent); margin:0 0 12px;">📋 Grille d'Auto-Évaluation du Correcteur :</h4>
+          <p style="font-size:.82rem; color:var(--text-secondary); margin-bottom:12px;">Coche en toute honnêteté les critères présents dans ta copie :</p>
+          <div id="open-ex-critere-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
+          
+          <button class="btn-secondary" id="btn-finish-open-ex" style="width:100%; background:var(--text-primary); color:white;">Enregistrer le résultat de l'auto-évaluation</button>
         </div>
-        <div style="margin-bottom:16px;">
-          <label style="display:block; margin-bottom:5px; font-weight:700;">Avatar</label>
-          <select id="select-avatar" class="clay-input">
-            <option value="🦊">🦊 Renard Malin</option>
-            <option value="🦁">🦁 Lion Déterminé</option>
-            <option value="🦉">🦉 Chouette Sage</option>
-          </select>
-        </div>
-        <button id="btn-save-profile" class="btn-primary">Enregistrer</button>
-      </div>
-      <div class="settings-card" style="margin-top:15px; border-color: rgba(232,72,85,0.2);">
-        <h3>Données</h3>
-        <button id="btn-reset-data" class="btn-danger" style="width:100%;">Réinitialiser ma progression</button>
       </div>
     </section>
+
+    <section id="quiz-screen" class="view-section hidden">
+      <div class="quiz-container">
+        <div class="quiz-header-top">
+          <div id="quiz-timer" style="font-weight:900; font-size:1.2rem; padding:6px 14px; background:rgba(232,72,85,0.1); border-radius:20px; display:none;">⏱️ 45s</div>
+          <span id="quiz-progress-text" style="font-weight:600;">Question 1/5</span>
+          <button class="btn-icon" id="quiz-close">✕</button>
+        </div>
+        <div class="progress-bar-container"><div class="progress-fill" id="quiz-progress-bar"></div></div>
+
+        <div class="quiz-card" style="margin-top:16px;">
+          <h3 class="quiz-question" id="quiz-question-text">Énoncé de la question</h3>
+          <div class="options-container" id="quiz-options-container"></div>
+        </div>
+
+        <div class="explanation-box hidden" id="quiz-explanation-box">
+          <h4 id="explanation-status">❌ Mauvaise réponse</h4>
+          <p id="explanation-text">Explication détaillée.</p>
+        </div>
+
+        <button class="btn-primary" id="quiz-next" style="width:100%; margin-top:16px;" disabled>Continuer ➡️</button>
+      </div>
+    </section>
+
   </main>
 </div>
 
-<button id="fab-examen" class="fab-examen-blanc">🎯 Examen Blanc</button>
-
-<div id="course-sheet" class="bottom-sheet hidden">
-  <div class="sheet-backdrop" id="sheet-backdrop"></div>
-  <div class="sheet-content">
-    <div class="sheet-header">
-      <div class="sheet-drag-handle"></div>
-      <button id="sheet-close" class="sheet-close-btn">✕</button>
-    </div>
-    <div class="sheet-body" id="sheet-course-body"></div>
-  </div>
-</div>
-
-<script>
-  // Banque de secours principale intégrée et sécurisée
-  const BASE_DONNEES_SECOURS = {
-    matieres: [
-      {
-        id: "maths",
-        label: "Mathématiques",
-        emoji: "📐",
-        nouveaute_2026: "20 min d'automatismes sans calculatrice",
-        chapitres: [
-          {
-            id: "m1", titre: "Automatismes et calcul mental", theme: "Nombres",
-            fiche: { icone: "⚡", titre: "Calcul mental", notion: "Calculer vite : maîtriser les pourcentages simples, les fractions d'une quantité.", exemple: "15% de 80 = 12.", piege: "Diviser par 0,5 revient à multiplier par 2 !" },
-            quiz: [{ enonce: "Calculer 25% de 160 €.", options: ["40 €", "80 €", "20 €", "120 €"], bonne_reponse: 0, explication: "160 / 4 = 40 €." }]
-          },
-          {
-            id: "m2", titre: "Arithmétique et PGCD", theme: "Nombres",
-            fiche: { icone: "🔢", titre: "Divisibilité", notion: "Un nombre premier n'est divisible que par 1 et par lui-même.", exemple: "60 = 2² × 3 × 5", piege: "Le nombre 1 n'est pas premier." },
-            quiz: [{ enonce: "Lequel de ces nombres est premier ?", options: ["15", "21", "19", "27"], bonne_reponse: 2, explication: "19 n'a pas d'autre diviseur." }]
-          }
-        ]
-      },
-      {
-        id: "francais",
-        label: "Français",
-        emoji: "✍️",
-        nouveaute_2026: "Épreuve officielle 3h",
-        chapitres: [
-          {
-            id: "f1", titre: "Figures de style", theme: "Grammaire",
-            fiche: { icone: "📖", titre: "Figures de style", notion: "La métaphore compare directement sans outil de comparaison.", exemple: "Ses yeux sont des étoiles.", piege: "Ne pas confondre avec la comparaison (avec 'comme')." },
-            quiz: [{ enonce: "Quelle figure : 'Ce voyage est un long calvaire' ?", options: ["Comparaison", "Métaphore", "Hyperbole", "Personnification"], bonne_reponse: 1, explication: "Métaphore (pas de 'comme')." }]
-          }
-        ]
-      }
-    ]
-  };
-
-  const S = {
-    data: BASE_DONNEES_SECOURS, // Données par défaut pour éviter l'écran gris
-    progress: {},
-    quiz: { chapitreId: null, qs: [], idx: 0, score: 0, matLabel: '' },
-    currentScreen: 'home-screen'
-  };
-
-  const $ = id => document.getElementById(id);
-
-  function shuffleArr(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function showToast(msg) {
-    const ext = document.querySelector('.toast'); if (ext) ext.remove();
-    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-  }
-
-  function loadLS() {
-    try {
-      const p = localStorage.getItem('rb_progress_2026'); if (p) S.progress = JSON.parse(p);
-      $('display-username').textContent = localStorage.getItem('rb_username') || "Élève de 3e";
-      $('display-avatar').textContent = localStorage.getItem('rb_avatar') || "🦊";
-      $('input-username').value = localStorage.getItem('rb_username') || "Élève de 3e";
-      $('select-avatar').value = localStorage.getItem('rb_avatar') || "🦊";
-    } catch(e) {}
-  }
-
-  function saveProgress() {
-    localStorage.setItem('rb_progress_2026', JSON.stringify(S.progress));
-    let done = 0; Object.values(S.progress).forEach(v => { if (v && v.termine) done++; });
-    $('display-streak').textContent = done;
-    refreshRing();
-  }
-
-  function refreshRing() {
-    if (!S.data || !S.data.matieres) return;
-    let total = 0; S.data.matieres.forEach(m => { if(m.chapitres) total += m.chapitres.length; });
-    let done = 0; Object.values(S.progress).forEach(v => { if (v && v.termine) done++; });
-    const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
-    $('global-progress-text').textContent = `${pct}%`;
-    const circle = $('global-progress-circle');
-    if (circle) {
-      const circumference = 52 * 2 * Math.PI;
-      circle.style.strokeDasharray = `${circumference} ${circumference}`;
-      circle.style.strokeDashoffset = circumference - (pct / 100) * circumference;
-    }
-  }
-
-  function changeScreen(screenId) {
-    ['home-screen', 'chapitres-screen', 'quiz-screen', 'score-screen', 'settings-screen'].forEach(s => {
-      if (s === screenId) $(s).classList.remove('hidden');
-      else $(s).classList.add('hidden');
-    });
-    S.currentScreen = screenId;
-  }
-
-  function goHome() { changeScreen('home-screen'); renderMatieres(); }
-
-  function updateCountdown() {
-    const diff = new Date('2026-06-26T09:00:00') - new Date();
-    const jours = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    const d = $('countdown-display');
-    if (d) d.textContent = jours > 0 ? `⏳ J-${jours} avant le début du Brevet 2026` : "🎓 Session 2026 active !";
-  }
-
-  function openCourseSheet(chapitreId) {
-    let target = null;
-    if (S.data && S.data.matieres) {
-      S.data.matieres.forEach(m => {
-        if(m.chapitres) {
-          const c = m.chapitres.find(ch => ch.id === chapitreId); if(c) target = c;
-        }
-      });
-    }
-    if (!target || !target.fiche) { showToast("⚠️ Fiche non disponible."); return; }
-    const f = target.fiche;
-    $('sheet-course-body').innerHTML = `
-      <div class="fiche-container">
-        <div class="fiche-header"><span class="fiche-icon">${f.icone||'📖'}</span><h2>${f.titre||target.titre}</h2></div>
-        <hr class="fiche-divider">
-        <div class="fiche-section notion"><h3>💡 Notion Fondamentale</h3><p>${f.notion}</p></div>
-        <div class="fiche-section exemple"><h3>📝 Exemple & Méthode</h3><div class="fiche-block-code">${f.exemple}</div></div>
-        <div class="fiche-section piege"><h3>⚠️ Piège à éviter</h3><p>${f.piege}</p></div>
-      </div>`;
-    $('course-sheet').classList.remove('hidden');
-  }
-
-  function closeCourseSheet() { $('course-sheet').classList.add('hidden'); }
-
-  function renderMatieres() {
-    const grid = $('matieres-grid'); grid.innerHTML = '';
-    if (!S.data || !S.data.matieres) return;
-    S.data.matieres.forEach(m => {
-      const card = document.createElement('div'); card.className = 'matiere-card';
-      let total = m.chapitres ? m.chapitres.length : 0, done = 0;
-      if (m.chapitres) m.chapitres.forEach(c => { if(S.progress[c.id]?.termine) done++; });
-      card.innerHTML = `<div class="matiere-header"><span class="matiere-emoji">${m.emoji}</span><h3>${m.label}</h3></div>
-        <p class="matiere-meta">${m.nouveaute_2026||'Épreuve officielle'}</p>
-        <div class="matiere-progress-text">${done} / ${total} chapitres</div>`;
-      card.onclick = () => {
-        $('matiere-title').textContent = m.label;
-        const list = $('chapitres-list'); list.innerHTML = '';
-        if(m.chapitres) {
-          m.chapitres.forEach(c => {
-            const row = document.createElement('div'); row.className = 'chapitre-row';
-            row.innerHTML = `<div class="chapitre-info"><h4>${c.titre}</h4><span class="chapitre-tag">${c.theme||'Brevet'}</span>${S.progress[c.id]?.termine?'<span class="badge-done">✅</span>':''}</div>
-              <div class="chapitre-actions"><button class="btn-action-quiz" id="q-${c.id}">🎯 Quiz</button><button class="btn-action-fiche" id="f-${c.id}">📖 Fiche</button></div>`;
-            list.appendChild(row);
-            row.querySelector(`#q-${c.id}`).onclick = (e) => { e.stopPropagation(); lancerQuiz(c.id, m.label, c.quiz||[]); };
-            row.querySelector(`#f-${c.id}`).onclick = (e) => { e.stopPropagation(); openCourseSheet(c.id); };
-          });
-        }
-        changeScreen('chapitres-screen');
-      };
-      grid.appendChild(card);
-    });
-  }
-
-  function lancerQuiz(chapId, label, pool) {
-    S.quiz.chapitreId = chapId; S.quiz.matLabel = label; S.quiz.idx = 0; S.quiz.score = 0;
-    
-    let questionsDeSecours = [
-      { enonce: "Calculer 20% de 60 €.", options: ["10 €", "12 €", "15 €", "8 €"], bonne_reponse: 1, explication: "10% de 60 = 6, donc 20% = 12 €." },
-      { enonce: "En quelle année l'ONU a-t-elle été fondée ?", options: ["1918", "1939", "1945", "1962"], bonne_reponse: 2, explication: "L'ONU a été créée en 1945 juste après la Seconde Guerre mondiale." }
-    ];
-
-    S.quiz.qs = pool && pool.length ? shuffleArr(pool).slice(0,5) : shuffleArr(questionsDeSecours);
-    changeScreen('quiz-screen'); afficherQuestion();
-  }
-
-  function afficherQuestion() {
-    $('quiz-next').classList.add('hidden'); $('quiz-feedback-box').classList.add('hidden');
-    const q = S.quiz.qs[S.quiz.idx];
-    $('quiz-q-index').textContent = `Question ${S.quiz.idx+1}/${S.quiz.qs.length}`;
-    $('quiz-question-text').textContent = q.enonce;
-    const box = $('quiz-options-box'); box.innerHTML = '';
-    q.options.forEach((opt, i) => {
-      const b = document.createElement('button'); b.className = 'option-btn'; b.textContent = opt;
-      b.onclick = () => {
-        document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-        if(i === q.bonne_reponse) { b.classList.add('correct'); S.quiz.score++; }
-        else { b.classList.add('wrong'); document.querySelectorAll('.option-btn')[q.bonne_reponse].classList.add('correct'); }
-        $('quiz-feedback-text').innerHTML = q.explication; $('quiz-feedback-box').classList.remove('hidden'); $('quiz-next').classList.remove('hidden');
-      };
-      box.appendChild(b);
-    });
-    $('quiz-progress-fill').style.width = `${(S.quiz.idx / S.quiz.qs.length)*100}%`;
-  }
-
-  async function init() {
-    loadLS();
-    $('sidebar-menu').innerHTML = `<li onclick="goHome()">🏠 Tableau de bord</li><li onclick="lancerQuiz(null,'Culture',[])">🌍 Culture Générale</li><li onclick="changeScreen('settings-screen')">⚙️ Réglages</li>`;
-    $('sheet-backdrop').onclick = closeCourseSheet; $('sheet-close').onclick = closeCourseSheet;
-    $('quiz-close').onclick = () => { if(confirm("Quitter ?")) goHome(); };
-    $('quiz-view-sheet').onclick = () => { if(S.quiz.chapitreId) openCourseSheet(S.quiz.chapitreId); else showToast("Fiche indisponible."); };
-    
-    $('quiz-next').onclick = () => { 
-      S.quiz.idx++; 
-      if(S.quiz.idx < S.quiz.qs.length) afficherQuestion(); 
-      else { 
-        $('score-obtained').textContent = S.quiz.score; 
-        $('score-total').textContent = S.quiz.qs.length; 
-        if(S.quiz.chapitreId && S.quiz.score >= 3) S.progress[S.quiz.chapitreId] = {termine:true}; 
-        saveProgress(); 
-        changeScreen('score-screen'); 
-      } 
-    };
-    
-    $('btn-theme').onclick = () => { document.body.classList.toggle('dark-bg'); $('btn-theme').textContent = document.body.classList.contains('dark-bg')?'☀️':'🌙'; };
-    $('btn-save-profile').onclick = () => { localStorage.setItem('rb_username', $('input-username').value); localStorage.setItem('rb_avatar', $('select-avatar').value); loadLS(); showToast("Enregistré !"); };
-    $('btn-reset-data').onclick = () => { if(confirm("Effacer tout ?")) { S.progress={}; localStorage.removeItem('rb_progress_2026'); saveProgress(); goHome(); } };
-    $('fab-examen').onclick = () => lancerQuiz('exam', 'Examen Blanc', []);
-
-    // Essai de chargement distant asynchrone sécurisé
-    try {
-      const res = await fetch('troisieme.json');
-      if(res.ok) {
-        const json = await res.json();
-        if(json && json.matieres) {
-          S.data = json;
-        }
-      }
-    } catch(e) {
-      console.log("Mode local activé (troisieme.json non encore détecté)");
-    }
-    
-    goHome(); 
-    updateCountdown(); 
-    setInterval(updateCountdown, 60000);
-  }
-
-  document.addEventListener('DOMContentLoaded', init);
-</script>
+<script src="app.js"></script>
 </body>
 </html>
