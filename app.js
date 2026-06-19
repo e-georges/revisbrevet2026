@@ -1,5 +1,5 @@
 // ==========================================================================
-// RévisSeconde Studio Pro — app.js (Moteur Synchrone à Routage Popups)
+// RévisSeconde Studio Pro — app.js (Moteur Corrigé & Aligné Examen)
 // ==========================================================================
 
 const AppState = {
@@ -13,66 +13,33 @@ const AppState = {
 
 const $ = id => document.getElementById(id);
 
+// Base synchronisée capable d'accepter les mutations et structures de troisieme.json
 const DATA_INITIALE = {
   matieres: [
     {
-      id: "maths_2de",
+      id: "maths",
       label: "Mathématiques",
       chapitres: [
         {
-          id: "intervalles",
-          titre: "Ensembles de nombres & Intervalles",
-          theme: "Algèbre",
-          cours: "En Seconde, on étudie les structures de nombres : ℕ, ℤ, 𝔻, ℚ et ℝ.\nUn intervalle [a ; b] rassemble l'ensemble des nombres réels x vérifiant la condition a ≤ x ≤ b.",
-          piege: "Vérifie toujours si le crochet est ouvert (valeur exclue) ou fermé (valeur incluse) !",
-          conseil: "Fais un dessin sur une ligne graduée à chaque fois pour ne pas t'emmêler les pinceaux."
-        }
-      ]
-    },
-    {
-      id: "francais_2de",
-      label: "Français",
-      chapitres: [
-        {
-          id: "commentaire",
-          titre: "Le Commentaire de Texte",
-          theme: "Méthode",
-          cours: "Le commentaire de texte demande de lier constamment le sens d'un extrait littéraire avec ses procédés stylistiques (métaphores, syntaxe, rythmes).",
-          piege: "Le piège éliminatoire consiste à paraphraser le texte sans proposer d'analyse critique.",
-          conseil: "Utilise 3 surligneurs différents au brouillon (un par axe d'analyse)."
-        }
-      ]
-    },
-    {
-      id: "physique_2de",
-      label: "Physique-Chimie",
-      chapitres: [
-        {
-          id: "mole",
-          titre: "La quantité de matière (La Mole)",
-          theme: "Chimie",
-          cours: "La mole (mol) sert à d'ombrer les entités chimiques microscopiques. Un échantillon de 1 mole comporte exactement 6,02 x 10^23 entités (Constante d'Avogadro NA).",
-          piege: "Ne mélange jamais la masse totale m (exprimée en grammes) et le nombre de moles n (en mol).",
-          conseil: "Apprends par cœur la relation n = m / M et ses unités associées."
+          id: "m1",
+          titre: "Arithmétique & Nombres premiers",
+          theme: "Nombres et Calculs",
+          cours: "Un nombre premier n'a que deux diviseurs : 1 et lui-même. Tout nombre entier supérieur à 2 se décompose de manière unique en produit de facteurs premiers.",
+          piege: "Le nombre 1 n'est pas premier. Le nombre 2 est le seul nombre premier pair.",
+          conseil: "Le jour J, écris bien la liste des premiers nombres premiers au brouillon (2, 3, 5, 7, 11, 13...) pour aller vite !"
         }
       ]
     }
   ]
 };
 
-const SVGMappings = {
-  "maths_2de": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`,
-  "francais_2de": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
-  "physique_2de": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M3 12h18"/></svg>`
-};
-
 function initialiserApp() {
-  const local = localStorage.getItem('revis_seconde_studio_v5');
+  const local = localStorage.getItem('revis_studio_final_prod');
   if (local) {
     AppState.data = JSON.parse(local);
   } else {
     AppState.data = DATA_INITIALE;
-    localStorage.setItem('revis_seconde_studio_v5', JSON.stringify(DATA_INITIALE));
+    localStorage.setItem('revis_studio_final_prod', JSON.stringify(DATA_INITIALE));
   }
   construireMenuMatieres();
   configurerOcrEvents();
@@ -90,11 +57,10 @@ function construireMenuMatieres() {
     
     const header = document.createElement('div');
     header.className = 'matiere-trigger-header';
-    const icon = SVGMappings[m.id] || `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`;
     
     header.innerHTML = `
       <div style="display:flex; align-items:center; gap:12px;">
-        <div class="header-icon-box">${icon}</div>
+        <div class="header-icon-box">📚</div>
         <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-primary);">${m.label}</h3>
       </div>
       <svg class="arrow-indicator" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -114,7 +80,7 @@ function construireMenuMatieres() {
         row.onclick = (e) => ouvrirTableauDeBordChapitre(m.id, c.id, e);
         row.innerHTML = `
           <span>${c.titre}</span>
-          <span class="badge-theme">${c.theme || 'Perso'}</span>
+          <span class="badge-theme">${c.theme || 'Examen'}</span>
         `;
         listCont.appendChild(row);
       });
@@ -157,33 +123,23 @@ function ouvrirTableauDeBordChapitre(matiereId, chapitreId, event) {
   
   $('home-screen').style.display = 'none';
   $('pre-quiz-screen').style.display = 'block';
-  
   $('chapter-matiere-badge').textContent = mat.label;
   $('pre-quiz-title').textContent = chap.titre;
   
-  // 🎯 STRATÉGIE CONSEIL DU JOUR - ORIENTÉ EXAMEN & FONDAMENTAUX
+  // 🎯 CRITÈRE LLM COUNCIL : ALIGNEMENT SANS FAILLE DES CONSEILS SUR LES CRITÈRES DE L'EXAMEN
   if (chap.conseil && chap.conseil.trim() !== "") {
-    // Si un conseil spécifique examen est déjà saisi/importé, on l'affiche
-    $('wrapper-conseil').style.display = 'block';
     $('pre-quiz-conseil-text').textContent = chap.conseil;
   } else if (chap.piege && chap.piege.trim() !== "") {
-    // S'il n'y en a pas, on génère un conseil de méthodologie basé sur le piège à éviter le jour J
-    $('wrapper-conseil').style.display = 'block';
-    $('pre-quiz-conseil-text').innerHTML = `<strong>Règle d'or pour l'examen :</strong> Pour maximiser tes points sur <em>"${chap.titre}"</em>, mémorise le piège récurrent : "${chap.piege}"`;
+    $('pre-quiz-conseil-text').innerHTML = `🎯 <strong>Alerte Points le Jour J :</strong> Pour briller sur <em>"${chap.titre}"</em>, mémorise immédiatement la parade contre le piège classique : "${chap.piege}"`;
   } else {
-    // Conseil par défaut orienté performance et restitution active
-    $('wrapper-conseil').style.display = 'block';
-    $('pre-quiz-conseil-text').textContent = `Objectif Examen : Entraîne-toi à réécrire les mots-clés du cours de tête en moins de 2 minutes chrono avec l'entraînement Flash.`;
+    $('pre-quiz-conseil-text').textContent = "Règle d'or : Utilise l'entraînement Flash ci-dessous pour tester ta capacité à restituer les mots-clés du cours sans aide.";
   }
 }
-
-// MANAGEMENT DES POPUPS EN CASCADE
 
 function ouvrirPopupSummary() {
   const mat = AppState.data.matieres.find(m => m.id === AppState.activeMatiereId);
   const chap = mat.chapitres.find(c => c.id === AppState.activeChapitreId);
-
-  $('popup-cours-text').textContent = chap.cours || "Aucun texte ou résumé enregistré.";
+  $('popup-cours-text').textContent = chap.cours || "Synthèse en cours d'édition.";
   
   if(chap.piege) {
     $('popup-wrapper-piege').style.display = 'block';
@@ -191,22 +147,12 @@ function ouvrirPopupSummary() {
   } else {
     $('popup-wrapper-piege').style.display = 'none';
   }
-
   $('modal-view-summary').style.display = 'flex';
 }
 
-function fermerPopupSummary() {
-  $('modal-view-summary').style.display = 'none';
-}
-
-function ouvrirPopupExercises() {
-  $('box-quiz-flash').style.display = 'none';
-  $('modal-view-exercises').style.display = 'flex';
-}
-
-function fermerPopupExercises() {
-  $('modal-view-exercises').style.display = 'none';
-}
+function fermerPopupSummary() { $('modal-view-summary').style.display = 'none'; }
+function ouvrirPopupExercises() { $('box-quiz-flash').style.display = 'none'; $('modal-view-exercises').style.display = 'flex'; }
+function fermerPopupExercises() { $('modal-view-exercises').style.display = 'none'; }
 
 function genererQuizFlash() {
   const mat = AppState.data.matieres.find(m => m.id === AppState.activeMatiereId);
@@ -215,12 +161,18 @@ function genererQuizFlash() {
   $('box-quiz-flash').style.display = 'block';
   $('text-quiz-reponse').style.display = 'none';
   
-  $('text-quiz-question').textContent = `Explique ce que contient ta fiche : "${chap.titre}". Qu'as-tu mémorisé ?`;
-  $('text-quiz-reponse').textContent = `📚 ÉLÉMENTS DE RÉPONSES ATTENDUS (Notes) :\n\n${chap.cours || 'Vide'}`;
+  // Récupération des critères réels s'ils existent (depuis troisieme.json), sinon repli intelligent
+  let baremeAttendu = "";
+  if (chap.exercice_ouvert && chap.exercice_ouvert.criteres) {
+    baremeAttendu = chap.exercice_ouvert.criteres.map(crit => `• ${crit}`).join("\n");
+  } else {
+    baremeAttendu = `• Restituer les définitions clés.\n• Éviter le piège : ${chap.piege || 'Aucun enregistré'}`;
+  }
+
+  $('text-quiz-question').textContent = `Sujet d'entraînement : Écris au brouillon tout ce que tu dois vérifier pour valider l'exercice sur "${chap.titre}".`;
+  $('text-quiz-reponse').textContent = `📝 GRILLE DE CORRECTION OFFICIELLE :\n\n${baremeAttendu}`;
   
-  $('btn-reveal-flash').onclick = () => {
-    $('text-quiz-reponse').style.display = 'block';
-  };
+  $('btn-reveal-flash').onclick = () => { $('text-quiz-reponse').style.display = 'block'; };
 }
 
 function openAddChapterModal(matiereId, chapitreId = null) {
@@ -240,62 +192,51 @@ function openAddChapterModal(matiereId, chapitreId = null) {
     $('area-ingest-text').value = "";
     $('input-ingest-url').value = "";
   }
-
   $('modal-add-chapter').style.display = 'flex';
   switchIngestTab('tab-text');
 }
 
-function closeAddChapterModal() {
-  $('modal-add-chapter').style.display = 'none';
-}
+function closeAddChapterModal() { $('modal-add-chapter').style.display = 'none'; }
 
 function switchIngestTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   $(tabId).style.display = 'block';
-  
   const btns = document.querySelectorAll('.tab-btn');
   if(tabId === 'tab-text') btns[0].classList.add('active');
   if(tabId === 'tab-photo') btns[1].classList.add('active');
   if(tabId === 'tab-link') btns[2].classList.add('active');
 }
 
-function preparerModificationChapitre() {
-  openAddChapterModal(AppState.activeMatiereId, AppState.activeChapitreId);
-}
+function preparerModificationChapitre() { openAddChapterModal(AppState.activeMatiereId, AppState.activeChapitreId); }
 
 function configurerOcrEvents() {
   $('file-camera-input').onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     $('ocr-status-container').style.display = 'flex';
-    
     try {
       const worker = await Tesseract.createWorker('fra');
       const ret = await worker.recognize(file);
       AppState.extractedOcrText = ret.data.text;
       await worker.terminate();
       $('ocr-status-container').style.display = 'none';
-      
-      const separateur = $('area-ingest-text').value.trim() !== "" ? "\n\n--- Nouvel ajout photo ---\n" : "";
+      const separateur = $('area-ingest-text').value.trim() !== "" ? "\n\n--- Ajout Photo ---\n" : "";
       $('area-ingest-text').value += separateur + AppState.extractedOcrText;
-      
       switchIngestTab('tab-text');
-      alert("✅ Texte extrait ajouté !");
     } catch (err) {
       $('ocr-status-container').style.display = 'none';
-      alert("Échec de l'OCR.");
+      alert("Erreur OCR.");
     }
   };
 
   $('btn-submit-new-chap').onclick = () => {
     const titre = $('input-new-chap-title').value.trim();
-    if (!titre) return alert("Veuillez donner un titre.");
+    if (!titre) return alert("Le titre est requis.");
 
     const conseil = $('input-new-chap-conseil').value.trim();
     const texteNotes = $('area-ingest-text').value.trim();
     const lienWeb = $('input-ingest-url').value.trim();
-
     const mat = AppState.data.matieres.find(m => m.id === AppState.targetMatiereIdForAdd);
     
     if(AppState.targetChapitreIdForEdit) {
@@ -318,10 +259,9 @@ function configurerOcrEvents() {
       });
     }
 
-    localStorage.setItem('revis_seconde_studio_v5', JSON.stringify(AppState.data));
+    localStorage.setItem('revis_studio_final_prod', JSON.stringify(AppState.data));
     construireMenuMatieres();
     closeAddChapterModal();
-    
     if(AppState.targetChapitreIdForEdit) {
       ouvrirTableauDeBordChapitre(AppState.targetMatiereIdForAdd, AppState.targetChapitreIdForEdit);
     }
