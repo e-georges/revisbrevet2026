@@ -3,137 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RévisBrevet 2026 — Expert</title>
+  <title>RévisBrevet 2026</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="app-container">
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <span>🎓 RévisBrevet Pro</span>
-      <button id="theme-toggle" class="btn-icon">🌙</button>
-    </div>
-
-    <div class="user-profile-widget">
-      <div class="profile-avatar-wrapper"><span>🦊</span></div>
-      <div class="profile-info">
-        <h3>Élève de 3e</h3>
-        <div class="profile-meta">Brevet National 2026</div>
-        <div class="streak-badge">🔥 <span id="display-streak">0</span> Jours</div>
-      </div>
-    </div>
-    <ul class="nav-links" id="sidebar-menu"></ul>
-  </aside>
-
-  <main class="main-content">
+  <div class="app-container">
     
-    <section id="home-screen" class="view-section">
-      <div class="dashboard-header">
-        <h1>Mon Tableau de Bord 🚀</h1>
-        <p>Prépare tes épreuves écrites avec un entraînement adaptatif.</p>
-      </div>
-
-      <div id="lacunes-box" class="card hidden" style="background:#FFF5F5; border-left:5px solid var(--color-danger); padding:16px; margin-bottom:20px; border-radius:12px;">
-        <h4 style="margin:0 0 6px; color:var(--color-danger); display:flex; align-items:center; gap:8px;">⚠️ Diagnostic Prédictif Intelligent</h4>
-        <p id="lacunes-text" style="margin:0; font-size:.86rem; line-height:1.4; color:#9B1C1C;"></p>
-      </div>
-
-      <div class="card" id="btn-mode-automatismes" style="background: linear-gradient(135deg, #7C3AED, #9333EA); color: white; border-radius: 14px; padding: 18px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(124,58,237,0.25); cursor: pointer; transition: transform .2s;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-          <span style="font-size: 2.2rem;">⚡</span>
+    <main class="main-content">
+      
+      <section id="home-screen" class="view-section">
+        <div class="mobile-header">
           <div>
-            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.3px;">Automatismes (Examen Oral/Écrit 2026)</h3>
-            <p style="margin: 4px 0 0; font-size: 0.84rem; opacity: 0.92; line-height: 1.3;">10 questions ultra-rapides chronométrées sans calculatrice !</p>
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Objectif Diplôme</span>
+            <h1 style="margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;">Brevet des Collèges</h1>
+          </div>
+          <button id="btn-mode-automatismes" class="badge" style="border: none; cursor: pointer; background: var(--color-primary); color: white; padding: 8px 12px; border-radius: 10px;">⏱️ Automatismes</button>
+        </div>
+
+        <div id="lacunes-box" class="card hidden" style="background: #FFF7ED; border-color: #FFEDD5; border-left: 4px solid var(--color-warning);">
+          <p id="lacunes-text" style="margin: 0; font-size: 0.82rem; color: #9A3412; line-height: 1.4;"></p>
+        </div>
+
+        <div id="matieres-container"></div>
+      </section>
+
+      <section id="pre-quiz-screen" class="view-section hidden">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+          <button onclick="goHome()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-secondary);">⬅️</button>
+          <span id="pre-quiz-theme" class="badge">Thème</span>
+        </div>
+
+        <h2 id="pre-quiz-title" style="margin: 0 0 20px 0; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em;">Titre du Chapitre</h2>
+
+        <div class="card">
+          <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">L'essentiel du cours</h4>
+          <p id="pre-quiz-cours-text" style="margin: 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.5; white-space: pre-line;"></p>
+        </div>
+
+        <div class="card" style="background: #FFF5F5; border-color: #FED7D7;">
+          <h4 style="margin: 0 0 6px 0; font-size: 0.85rem; text-transform: uppercase; color: var(--color-danger); letter-spacing: 0.05em;">⚠️ Le piège du Brevet</h4>
+          <p id="pre-quiz-piege-text" style="margin: 0; font-size: 0.85rem; color: #9B1C1C; line-height: 1.4;"></p>
+        </div>
+
+        <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; text-align: center; margin: 24px 0 10px 0;">Choisis ton niveau d'entraînement :</p>
+        
+        <div class="quiz-level-container">
+          <button id="btn-lvl-1" class="btn-lvl-select" style="background-color: #22C55E;">
+            <span class="lvl-num">Niv 1</span>
+            <span class="lvl-label">Fondations</span>
+          </button>
+          
+          <button id="btn-lvl-2" class="btn-lvl-select" style="background-color: #EAB308;">
+            <span class="lvl-num">Niv 2</span>
+            <span class="lvl-label">Application</span>
+          </button>
+          
+          <button id="btn-lvl-3" class="btn-lvl-select" style="background-color: #EF4444;">
+            <span class="lvl-num">Niv 3</span>
+            <span class="lvl-label">Brevet</span>
+          </button>
+        </div>
+
+        <button id="btn-open-exercice" class="btn-secondary hidden" style="margin-top: 12px; gap: 8px;">
+          ✍️ S'entraîner sur un sujet rédigé
+        </button>
+      </section>
+
+      <section id="quiz-screen" class="view-section hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <span id="quiz-progress-text" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Question 1 / 3</span>
+          <span id="quiz-timer" class="badge" style="background: #F1F5F9; color: var(--text-primary); display: none;">⏱️ 45s</span>
+          <button id="quiz-close" style="background: none; border: none; font-size: 1.1rem; cursor: pointer;">❌</button>
+        </div>
+
+        <div style="width: 100%; height: 6px; background: var(--border-color); border-radius: 3px; margin-bottom: 24px; overflow: hidden;">
+          <div id="quiz-progress-bar" style="width: 0%; height: 100%; background: var(--color-primary); transition: width 0.3s ease;"></div>
+        </div>
+
+        <h3 id="quiz-question-text" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); line-height: 1.4; margin: 0 0 24px 0; text-align: left;">Énoncé de la question ?</h3>
+
+        <div id="quiz-options-container" style="display: flex; flex-direction: column;"></div>
+
+        <div id="quiz-explanation-box" class="explanation-box hidden">
+          <b id="explanation-status" style="display: block; font-size: 0.9rem; margin-bottom: 4px;"></b>
+          <span id="explanation-text" style="font-size: 0.85rem; line-height: 1.4;"></span>
+        </div>
+
+        <button id="quiz-next" class="btn-primary" style="margin-top: 24px;" disabled>Question suivante ➡️</button>
+      </section>
+
+      <section id="open-exercise-screen" class="view-section hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <span id="open-ex-title" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Chapitre</span>
+          <button id="btn-close-exercise" style="background: none; border: none; font-size: 1.1rem; cursor: pointer;">❌</button>
+        </div>
+
+        <div class="card" style="background: white;">
+          <h4 style="margin:0 0 8px 0; font-size:0.8rem; text-transform:uppercase; color:var(--color-accent);">Sujet d'entraînement rédigé</h4>
+          <p id="open-ex-enonce" style="margin:0; font-size:0.9rem; line-height:1.5; font-weight:600; color:var(--text-primary);"></p>
+        </div>
+
+        <textarea id="open-ex-textarea" placeholder="Rédige ton raisonnement ici au brouillon pour te prêter au jeu..." style="width:100%; height:120px; border:1px solid var(--border-color); border-radius:12px; padding:12px; font-family:inherit; font-size:0.88rem; box-sizing:border-box; resize:none; margin-bottom:16px; outline:none; transition:border 0.2s;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--border-color)'"></textarea>
+
+        <button id="btn-validate-open-ex" class="btn-primary">Vérifier mon raisonnement 🔍</button>
+
+        <div id="open-ex-correction-box" class="card hidden" style="margin-top:16px; border-color:var(--color-primary); background:#F8FAFC;">
+          <h4 style="margin:0 0 4px 0; font-size:0.85rem; color:var(--color-primary);">Grille d'Auto-Évaluation</h4>
+          <p style="margin:0 0 12px 0; font-size:0.75rem; color:var(--text-secondary);">Coche les éléments que tu as correctement formulés sur ton brouillon :</p>
+          
+          <div id="open-ex-critere-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+          
+          <button id="btn-finish-open-ex" class="btn-primary" style="margin-top:16px; background-color:#0F172A;">Enregistrer mon bilan</button>
+        </div>
+      </section>
+
+      <section id="flashcards-screen" class="view-section hidden">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <span id="flashcard-meta" class="badge" style="background: #EEF2FF; color: var(--color-primary);">Matière • Chapitre</span>
+        </div>
+
+        <div class="flashcard-perspective">
+          <div id="flashcard-card-box" class="flashcard-card">
+            
+            <div class="flashcard-face flashcard-front">
+              <span style="font-size: 2rem; margin-bottom: 12px;">💡</span>
+              <p id="flashcard-front-text" style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-primary);"></p>
+              <span style="position: absolute; bottom: 16px; font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">👉 Tapoter pour révéler</span>
+            </div>
+            
+            <div class="flashcard-face flashcard-back">
+              <p id="flashcard-back-text" style="margin: 0; font-size: 0.92rem; font-weight: 500; text-align: left; line-height: 1.6;"></p>
+              <span style="position: absolute; bottom: 16px; font-size: 0.72rem; font-weight: 600; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em;">🖱️ Cliquez pour revenir au Recto</span>
+            </div>
+
           </div>
         </div>
-      </div>
 
-      <h2>📚 Matières d'examen</h2>
-      <div class="matieres-grid" id="matieres-container"></div>
-    </section>
+        <button id="flashcard-next" class="btn-primary btn-next-flashcard">Suivante ➡️</button>
+      </section>
 
-    <section id="pre-quiz-screen" class="view-section hidden">
-      <button class="btn-secondary" onclick="goHome()" style="margin-bottom:16px;">⬅️ Retour</button>
-      
-      <div class="card" style="padding:24px; margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="badge" id="pre-quiz-theme">Thème</span>
-          <h2 id="pre-quiz-title" style="margin:0;">Titre du Chapitre</h2>
-        </div>
-        
-        <div style="margin:20px 0; padding:16px; background:var(--bg-app); border-radius:10px;">
-          <h4 style="margin:0 0 8px; color:var(--color-primary);">📖 Fiche Récapitulative du Cours</h4>
-          <p id="pre-quiz-cours-text" style="margin:0; line-height:1.5; font-size:.92rem;"></p>
-        </div>
+    </main>
 
-        <div style="margin:16px 0; padding:12px; background:#FFFBEB; border-left:4px solid var(--color-warning); border-radius:6px; font-size:.85rem; color:#92400E;">
-          <strong>⚠️ Le Piège classique à l'examen :</strong> <span id="pre-quiz-piege-text"></span>
-        </div>
+    <nav class="bottom-nav">
+      <button id="nav-home" class="nav-item active">
+        <span>📚</span>
+        <span>Cours</span>
+      </button>
+      <button id="nav-flashcards" class="nav-item">
+        <span>🎴</span>
+        <span>Flashcards</span>
+      </button>
+    </nav>
 
-        <h3 style="margin-top:24px;">🎯 Choisissez votre type d'entraînement :</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
-          <button class="btn-primary" id="btn-lvl-1" style="background:#22C55E;">Niv 1<br><small style="font-size:10px;">Fondations</small></button>
-          <button class="btn-primary" id="btn-lvl-2" style="background:#EAB308;">Niv 2<br><small style="font-size:10px;">Application</small></button>
-          <button class="btn-primary" id="btn-lvl-3" style="background:#EF4444;">Niv 3<br><small style="font-size:10px;">Brevet</small></button>
-        </div>
+  </div>
 
-        <div style="text-align:center; margin-top:14px; border-top:1px solid var(--border-color); padding-top:16px;">
-          <button class="btn-secondary" id="btn-open-exercice" style="background:var(--color-primary); color:white; width:100%;">✍️ Tenter l'Exercice Ouvert de Rédaction / Justification</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="open-exercise-screen" class="view-section hidden">
-      <button class="btn-secondary" id="btn-close-exercise" style="margin-bottom:16px;">⬅️ Annuler l'exercice</button>
-      <div class="card" style="padding:24px;">
-        <span class="badge" style="background:var(--color-primary); color:white;">Exercice Ouvert Rédactionnel</span>
-        <h3 id="open-ex-title" style="margin-top:12px;">Sujet du Brevet</h3>
-        <p id="open-ex-enonce" style="background:var(--bg-app); padding:16px; border-radius:10px; line-height:1.5; font-weight:500;"></p>
-        
-        <label style="font-weight:600; display:block; margin:16px 0 8px;">Rédige ta réponse ci-dessous :</label>
-        <textarea id="open-ex-textarea" rows="6" placeholder="Saisis ton calcul argumenté ou ton paragraphe d'Histoire/Français..." style="width:100%; font-family:inherit; padding:12px; border-radius:8px; border:1.5px solid var(--border-color); box-sizing:border-box; outline:none; font-size:.95rem; line-height:1.4;"></style></textarea>
-        
-        <button class="btn-primary" id="btn-validate-open-ex" style="width:100%; margin-top:14px; padding:14px;">🔎 Valider et voir la grille de correction</button>
-
-        <div id="open-ex-correction-box" class="hidden" style="margin-top:24px; padding-top:20px; border-top:2px dashed var(--border-color);">
-          <h4 style="color:var(--color-accent); margin:0 0 12px;">📋 Grille d'Auto-Évaluation du Correcteur :</h4>
-          <p style="font-size:.82rem; color:var(--text-secondary); margin-bottom:12px;">Coche en toute honnêteté les critères présents dans ta copie :</p>
-          <div id="open-ex-critere-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
-          
-          <button class="btn-secondary" id="btn-finish-open-ex" style="width:100%; background:var(--text-primary); color:white;">Enregistrer le résultat de l'auto-évaluation</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="quiz-screen" class="view-section hidden">
-      <div class="quiz-container">
-        <div class="quiz-header-top">
-          <div id="quiz-timer" style="font-weight:900; font-size:1.2rem; padding:6px 14px; background:rgba(232,72,85,0.1); border-radius:20px; display:none;">⏱️ 45s</div>
-          <span id="quiz-progress-text" style="font-weight:600;">Question 1/5</span>
-          <button class="btn-icon" id="quiz-close">✕</button>
-        </div>
-        <div class="progress-bar-container"><div class="progress-fill" id="quiz-progress-bar"></div></div>
-
-        <div class="quiz-card" style="margin-top:16px;">
-          <h3 class="quiz-question" id="quiz-question-text">Énoncé de la question</h3>
-          <div class="options-container" id="quiz-options-container"></div>
-        </div>
-
-        <div class="explanation-box hidden" id="quiz-explanation-box">
-          <h4 id="explanation-status">❌ Mauvaise réponse</h4>
-          <p id="explanation-text">Explication détaillée.</p>
-        </div>
-
-        <button class="btn-primary" id="quiz-next" style="width:100%; margin-top:16px;" disabled>Continuer ➡️</button>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
