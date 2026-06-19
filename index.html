@@ -13,11 +13,11 @@
   <style>
     /* ── BASE & CLAYMORPHISM SYSTEM ── */
     :root {
-      --bg: #F4F1FA;
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --text: #332F3A;
-      --muted: #7C7585;
-      --accent: #7C3AED;
+      --bg:          #F4F1FA;
+      --card-bg:     rgba(255, 255, 255, 0.85);
+      --text:        #332F3A;
+      --muted:       #7C7585;
+      --accent:      #7C3AED;
       --clay-border: rgba(255, 255, 255, 0.6);
       --shadow-clay: inset 0 4px 12px rgba(255, 255, 255, 0.8), 0 10px 25px rgba(124, 58, 237, 0.12);
     }
@@ -45,7 +45,7 @@
     .app-container { display: flex; width: 100%; }
     
     /* SIDEBAR */
-    aside class="sidebar" {
+    .sidebar {
       width: 260px;
       background: var(--card-bg);
       border-right: 2px solid var(--clay-border);
@@ -78,7 +78,7 @@
     .nav-links li:hover { background: rgba(124, 58, 237, 0.1); color: var(--accent); }
 
     /* MAIN */
-    main class="main-content" { flex: 1; padding: 30px; box-sizing: border-box; }
+    .main-content { flex: 1; padding: 30px; box-sizing: border-box; min-width: 0; }
     .app-screen { max-width: 800px; margin: 0 auto; }
     .hidden { display: none !important; }
 
@@ -202,7 +202,7 @@
       body { flex-direction: column; }
       .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; border-right: none; border-bottom: 2px solid var(--clay-border); padding: 10px 15px; }
       .user-profile-widget, .nav-links { display: none !important; }
-      main { padding: 15px; }
+      .main-content { padding: 15px; }
       .fab-examen-blanc { bottom: 20px; right: 20px; padding: 10px 15px; font-size: 0.85rem; }
     }
   </style>
@@ -325,15 +325,45 @@
 </div>
 
 <script>
-  // Banque de secours intégrée
-  const SECOURS = [
-    { enonce: "Calculer 20% de 60 €.", options: ["A) 10 €", "B) 12 €", "C) 15 €", "D) 8 €"], bonne_reponse: 1, explication: "10% de 60 = 6, donc 20% = 12 €." },
-    { enonce: "Quelle figure de style compare directement sans outil de comparaison ?", options: ["A) Comparaison", "B) Métaphore", "C) Hyperbole", "D) Personnification"], bonne_reponse: 1, explication: "C'est la définition même de la métaphore." },
-    { enonce: "En quelle année l'ONU a-t-elle été fondée ?", options: ["A) 1918", "B) 1939", "C) 1945", "D) 1962"], bonne_reponse: 2, explication: "L'ONU a été créée en 1945 juste après la Seconde Guerre mondiale." }
-  ];
+  // Banque de secours principale intégrée et sécurisée
+  const BASE_DONNEES_SECOURS = {
+    matieres: [
+      {
+        id: "maths",
+        label: "Mathématiques",
+        emoji: "📐",
+        nouveaute_2026: "20 min d'automatismes sans calculatrice",
+        chapitres: [
+          {
+            id: "m1", titre: "Automatismes et calcul mental", theme: "Nombres",
+            fiche: { icone: "⚡", titre: "Calcul mental", notion: "Calculer vite : maîtriser les pourcentages simples, les fractions d'une quantité.", exemple: "15% de 80 = 12.", piege: "Diviser par 0,5 revient à multiplier par 2 !" },
+            quiz: [{ enonce: "Calculer 25% de 160 €.", options: ["40 €", "80 €", "20 €", "120 €"], bonne_reponse: 0, explication: "160 / 4 = 40 €." }]
+          },
+          {
+            id: "m2", titre: "Arithmétique et PGCD", theme: "Nombres",
+            fiche: { icone: "🔢", titre: "Divisibilité", notion: "Un nombre premier n'est divisible que par 1 et par lui-même.", exemple: "60 = 2² × 3 × 5", piege: "Le nombre 1 n'est pas premier." },
+            quiz: [{ enonce: "Lequel de ces nombres est premier ?", options: ["15", "21", "19", "27"], bonne_reponse: 2, explication: "19 n'a pas d'autre diviseur." }]
+          }
+        ]
+      },
+      {
+        id: "francais",
+        label: "Français",
+        emoji: "✍️",
+        nouveaute_2026: "Épreuve officielle 3h",
+        chapitres: [
+          {
+            id: "f1", titre: "Figures de style", theme: "Grammaire",
+            fiche: { icone: "📖", titre: "Figures de style", notion: "La métaphore compare directement sans outil de comparaison.", exemple: "Ses yeux sont des étoiles.", piege: "Ne pas confondre avec la comparaison (avec 'comme')." },
+            quiz: [{ enonce: "Quelle figure : 'Ce voyage est un long calvaire' ?", options: ["Comparaison", "Métaphore", "Hyperbole", "Personnification"], bonne_reponse: 1, explication: "Métaphore (pas de 'comme')." }]
+          }
+        ]
+      }
+    ]
+  };
 
   const S = {
-    data: null,
+    data: BASE_DONNEES_SECOURS, // Données par défaut pour éviter l'écran gris
     progress: {},
     quiz: { chapitreId: null, qs: [], idx: 0, score: 0, matLabel: '' },
     currentScreen: 'home-screen'
@@ -351,19 +381,14 @@
   }
 
   function showToast(msg) {
-    const ext = document.querySelector('.toast');
-    if (ext) ext.remove();
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2500);
+    const ext = document.querySelector('.toast'); if (ext) ext.remove();
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
   }
 
   function loadLS() {
     try {
-      const p = localStorage.getItem('rb_progress_2026');
-      if (p) S.progress = JSON.parse(p);
+      const p = localStorage.getItem('rb_progress_2026'); if (p) S.progress = JSON.parse(p);
       $('display-username').textContent = localStorage.getItem('rb_username') || "Élève de 3e";
       $('display-avatar').textContent = localStorage.getItem('rb_avatar') || "🦊";
       $('input-username').value = localStorage.getItem('rb_username') || "Élève de 3e";
@@ -373,8 +398,7 @@
 
   function saveProgress() {
     localStorage.setItem('rb_progress_2026', JSON.stringify(S.progress));
-    let done = 0;
-    Object.values(S.progress).forEach(v => { if (v && v.termine) done++; });
+    let done = 0; Object.values(S.progress).forEach(v => { if (v && v.termine) done++; });
     $('display-streak').textContent = done;
     refreshRing();
   }
@@ -407,7 +431,7 @@
     const diff = new Date('2026-06-26T09:00:00') - new Date();
     const jours = Math.ceil(diff / (1000 * 60 * 60 * 24));
     const d = $('countdown-display');
-    if (d) d.textContent = jours > 0 ? `⏳ J-${jours} avant le début du Brevet 2026` : "🎓 Session 2026 active ou passée !";
+    if (d) d.textContent = jours > 0 ? `⏳ J-${jours} avant le début du Brevet 2026` : "🎓 Session 2026 active !";
   }
 
   function openCourseSheet(chapitreId) {
@@ -415,12 +439,11 @@
     if (S.data && S.data.matieres) {
       S.data.matieres.forEach(m => {
         if(m.chapitres) {
-          const c = m.chapitres.find(ch => ch.id === chapitreId);
-          if(c) target = c;
+          const c = m.chapitres.find(ch => ch.id === chapitreId); if(c) target = c;
         }
       });
     }
-    if (!target || !target.fiche) { showToast("⚠️ Fiche non rédigée ou indisponible."); return; }
+    if (!target || !target.fiche) { showToast("⚠️ Fiche non disponible."); return; }
     const f = target.fiche;
     $('sheet-course-body').innerHTML = `
       <div class="fiche-container">
@@ -448,14 +471,16 @@
       card.onclick = () => {
         $('matiere-title').textContent = m.label;
         const list = $('chapitres-list'); list.innerHTML = '';
-        m.chapitres.forEach(c => {
-          const row = document.createElement('div'); row.className = 'chapitre-row';
-          row.innerHTML = `<div class="chapitre-info"><h4>${c.titre}</h4><span class="chapitre-tag">${c.theme||'Brevet'}</span>${S.progress[c.id]?.termine?'<span class="badge-done">✅</span>':''}</div>
-            <div class="chapitre-actions"><button class="btn-action-quiz" id="q-${c.id}">🎯 Quiz</button><button class="btn-action-fiche" id="f-${c.id}">📖 Fiche</button></div>`;
-          list.appendChild(row);
-          row.querySelector(`#q-${c.id}`).onclick = () => lancerQuiz(c.id, m.label, c.quiz||[]);
-          row.querySelector(`#f-${c.id}`).onclick = () => openCourseSheet(c.id);
-        });
+        if(m.chapitres) {
+          m.chapitres.forEach(c => {
+            const row = document.createElement('div'); row.className = 'chapitre-row';
+            row.innerHTML = `<div class="chapitre-info"><h4>${c.titre}</h4><span class="chapitre-tag">${c.theme||'Brevet'}</span>${S.progress[c.id]?.termine?'<span class="badge-done">✅</span>':''}</div>
+              <div class="chapitre-actions"><button class="btn-action-quiz" id="q-${c.id}">🎯 Quiz</button><button class="btn-action-fiche" id="f-${c.id}">📖 Fiche</button></div>`;
+            list.appendChild(row);
+            row.querySelector(`#q-${c.id}`).onclick = (e) => { e.stopPropagation(); lancerQuiz(c.id, m.label, c.quiz||[]); };
+            row.querySelector(`#f-${c.id}`).onclick = (e) => { e.stopPropagation(); openCourseSheet(c.id); };
+          });
+        }
         changeScreen('chapitres-screen');
       };
       grid.appendChild(card);
@@ -464,7 +489,13 @@
 
   function lancerQuiz(chapId, label, pool) {
     S.quiz.chapitreId = chapId; S.quiz.matLabel = label; S.quiz.idx = 0; S.quiz.score = 0;
-    S.quiz.qs = pool.length ? shuffleArr(pool).slice(0,5) : shuffleArr(SECOURS);
+    
+    let questionsDeSecours = [
+      { enonce: "Calculer 20% de 60 €.", options: ["10 €", "12 €", "15 €", "8 €"], bonne_reponse: 1, explication: "10% de 60 = 6, donc 20% = 12 €." },
+      { enonce: "En quelle année l'ONU a-t-elle été fondée ?", options: ["1918", "1939", "1945", "1962"], bonne_reponse: 2, explication: "L'ONU a été créée en 1945 juste après la Seconde Guerre mondiale." }
+    ];
+
+    S.quiz.qs = pool && pool.length ? shuffleArr(pool).slice(0,5) : shuffleArr(questionsDeSecours);
     changeScreen('quiz-screen'); afficherQuestion();
   }
 
@@ -493,18 +524,40 @@
     $('sheet-backdrop').onclick = closeCourseSheet; $('sheet-close').onclick = closeCourseSheet;
     $('quiz-close').onclick = () => { if(confirm("Quitter ?")) goHome(); };
     $('quiz-view-sheet').onclick = () => { if(S.quiz.chapitreId) openCourseSheet(S.quiz.chapitreId); else showToast("Fiche indisponible."); };
-    $('quiz-next').onclick = () => { S.quiz.idx++; if(S.quiz.idx < S.quiz.qs.length) afficherQuestion(); else { $('score-obtained').textContent = S.quiz.score; $('score-total').textContent = S.quiz.qs.length; if(S.quiz.chapitreId && S.quiz.score >= 3) S.progress[S.quiz.chapitreId] = {termine:true}; saveProgress(); changeScreen('score-screen'); } };
+    
+    $('quiz-next').onclick = () => { 
+      S.quiz.idx++; 
+      if(S.quiz.idx < S.quiz.qs.length) afficherQuestion(); 
+      else { 
+        $('score-obtained').textContent = S.quiz.score; 
+        $('score-total').textContent = S.quiz.qs.length; 
+        if(S.quiz.chapitreId && S.quiz.score >= 3) S.progress[S.quiz.chapitreId] = {termine:true}; 
+        saveProgress(); 
+        changeScreen('score-screen'); 
+      } 
+    };
+    
     $('btn-theme').onclick = () => { document.body.classList.toggle('dark-bg'); $('btn-theme').textContent = document.body.classList.contains('dark-bg')?'☀️':'🌙'; };
     $('btn-save-profile').onclick = () => { localStorage.setItem('rb_username', $('input-username').value); localStorage.setItem('rb_avatar', $('select-avatar').value); loadLS(); showToast("Enregistré !"); };
     $('btn-reset-data').onclick = () => { if(confirm("Effacer tout ?")) { S.progress={}; localStorage.removeItem('rb_progress_2026'); saveProgress(); goHome(); } };
     $('fab-examen').onclick = () => lancerQuiz('exam', 'Examen Blanc', []);
 
+    // Essai de chargement distant asynchrone sécurisé
     try {
       const res = await fetch('troisieme.json');
-      if(res.ok) S.data = await res.json();
-    } catch(e) {}
+      if(res.ok) {
+        const json = await res.json();
+        if(json && json.matieres) {
+          S.data = json;
+        }
+      }
+    } catch(e) {
+      console.log("Mode local activé (troisieme.json non encore détecté)");
+    }
     
-    goHome(); updateCountdown(); setInterval(updateCountdown, 60000);
+    goHome(); 
+    updateCountdown(); 
+    setInterval(updateCountdown, 60000);
   }
 
   document.addEventListener('DOMContentLoaded', init);
